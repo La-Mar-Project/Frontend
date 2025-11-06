@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+  --color-blue-primary: #f6f7ff;
+  --color-blue-login: #d9ddf1;
+}
