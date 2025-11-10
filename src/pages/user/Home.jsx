@@ -1,8 +1,13 @@
 import Header from "../../components/user/Header";
 import Logoblue from "../../assets/LogoBlue.svg";
 import Footer from "../../components/user/Footer";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const navigate = useNavigate();
+  const Textstyle =
+    "hover:bg-skylight hover:text-logocolor cursor-pointer text-[30px] text-logocolor border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto";
+
   return (
     <div className="min-h-svh">
       <Header showLogo={false} actionsAlign="right" />
@@ -23,19 +28,18 @@ export default function Home() {
             출항할 준비가 되셨나요
           </div>
           <section className="grid grid-cols-3 gap-3 h-[204px] w-auto">
-            <div className="text-[30px] text-logocolor border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto">
-              주요공지 확인하기
+            <div className={Textstyle} onClick={() => navigate("/main/notice")}>
+              중요공지 확인하기
             </div>
-            <div className="text-[30px] text-logocolor border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto">
-              쭈불 카페가기
-            </div>
-            <div className="text-[30px] text-logocolor border border-logocolor border-2 bg-white flex justify-center items-center row-span-2 rounded-[20px] w-auto h-auto">
+            <div className={Textstyle}>쭈불 카페가기</div>
+            <div
+              className={`${Textstyle} row-span-2`}
+              onClick={() => navigate("/main/mypage/history")}
+            >
               예약 정보 조회
             </div>
-            <div className="text-[30px] text-logocolor border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto">
-              조과글 확인하기
-            </div>
-            <div className="text-[30px] text-logocolor border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto">
+            <div className={Textstyle}>조과글 확인하기</div>
+            <div className={Textstyle} onClick={() => navigate("/main/mypage")}>
               마이페이지
             </div>
           </section>

@@ -1,4 +1,5 @@
 import Logoblue from "../../assets/LogoBlue.svg";
+import { useNavigate } from "react-router-dom";
 
 const justifyMap = {
   left: "justify-start",
@@ -7,6 +8,8 @@ const justifyMap = {
 };
 
 export default function Header({ showLogo = true, actionsAlign = "right" }) {
+  const navigate = useNavigate();
+
   return (
     <div className="grid grid-cols-3">
       <div />
@@ -24,9 +27,14 @@ export default function Header({ showLogo = true, actionsAlign = "right" }) {
           justifyMap[actionsAlign] ?? justifyMap.right,
         ].join(" ")}
       >
-        <button className="p-[10px]">마이페이지</button>
-        <button className="p-[10px]">로그아웃</button>
-        <button className="p-[10px]">회원가입</button>
+        <button
+          className="p-[10px] cursor-pointer"
+          onClick={() => navigate("/main/mypage")}
+        >
+          마이페이지
+        </button>
+        <button className="p-[10px] cursor-pointer">로그아웃</button>
+        <button className="p-[10px] cursor-pointer">회원가입</button>
       </div>
     </div>
   );

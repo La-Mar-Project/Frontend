@@ -1,30 +1,48 @@
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import Footer from "../../components/user/Footer";
 import Header from "../../components/user/Header";
-import Notice from "./main/mainnotice/Notice";
+
+const base =
+  "px-[25px] py-5 text-[22px] font-regular border-t-2 flex items-center justify-center text-center";
+const active = "bg-linecolor text-white";
+const hover = "hover:bg-skylight hover:text-linecolor";
+
+const navClass = ({ isActive }) => `${base} ${hover} ${isActive ? active : ""}`;
 
 export default function Main() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col min-h-svh">
       <Header />
       <section className="grid-rows-[auto_159px_1fr] text-title grid grid-cols-[1.5fr_repeat(5,1fr)] divide-x-2 divide-y-2 divide-linecolor flex-1">
         <div className="bg-skylight">광고배너</div>
-        <button className="hover:bg-linecolor hover:text-white px-[25px] py-5 text-[22px] font-regular border-t-2">
+
+        <NavLink to="notice" className={navClass}>
           중요공지 확인하기
-        </button>
-        <button className="hover:bg-linecolor hover:text-white  px-[25px] py-5 text-[22px] font-regular border-t-2">
+        </NavLink>
+
+        <NavLink to="intro" className={navClass}>
           쭈불 둘러보기
-        </button>
-        <button className="hover:bg-linecolor hover:text-white  px-[25px] py-5 text-[22px] font-regular border-t-2">
+        </NavLink>
+
+        <NavLink to="catch" className={navClass}>
           조과글 확인하기
-        </button>
-        <button className="hover:bg-linecolor hover:text-white  px-[25px] py-5 text-[22px] font-regular border-t-2">
+        </NavLink>
+
+        <NavLink to="mypage" className={navClass}>
           마이페이지
-        </button>
-        <button className="hover:bg-linecolor hover:text-white  border-r-0 border-b-2 px-[25px] py-5 text-[22px] font-regular border-t-2">
+        </NavLink>
+
+        <div
+          onClick={() => navigate("/home")}
+          className="hover:bg-skylight hover:text-linecolor border-r-0 border-b-2 px-[25px] py-5 text-[22px] font-regular border-t-2 flex items-center justify-center text-center"
+        >
           쭈불 예약하기
-        </button>
+        </div>
+
         <div className="col-span-6 border-b-0 border-r-0 row-span-2">
-          <Notice />
+          <Outlet />
         </div>
       </section>
       <Footer />
