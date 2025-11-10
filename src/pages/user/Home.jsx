@@ -12,7 +12,7 @@ export default function Home() {
     <div className="min-h-svh">
       <Header showLogo={false} actionsAlign="right" />
 
-      <div className="gap-[50px] px-[96px] py-[45px] flex h-[382px] w-full bg-skylight">
+      <div className="gap-[50px] px-[96px] py-[45px] flex h-[382px] w-full bg-skylighest">
         <div className="flex justify-center items-center">
           <img src={Logoblue} className="h-[94px] w-auto" />
         </div>
@@ -25,7 +25,7 @@ export default function Home() {
                 님!
               </div>
             </div>
-            출항할 준비가 되셨나요
+            출항할 준비가 되셨나요?
           </div>
           <section className="grid grid-cols-3 gap-3 h-[204px] w-auto">
             <div className={Textstyle} onClick={() => navigate("/main/notice")}>
@@ -45,6 +45,18 @@ export default function Home() {
           </section>
         </div>
       </div>
+      <section className="grid grid-cols-[1fr_3.5fr]">
+        <div className="flex justify-center items-center col-span-2 h-[382px] py-[48px]">
+          예약 달력
+        </div>
+        <div className="border-r-2 border-linecolor">
+          <div className="bg-skymid">광고배너</div>
+          <div className="py-[50px] px-[110px] flex justify-center items-center">
+            <img src={Logoblue} alt="logo" />
+          </div>
+        </div>
+        <div>Calendar</div>
+      </section>
       <Footer />
     </div>
   );

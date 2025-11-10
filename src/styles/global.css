@@ -3,11 +3,17 @@
 @theme {
   --color-blue-primary: #f6f7ff;
   --color-blue-login: #d9ddf1;
+
   --color-skylight: #eef4ff;
+  --color-skylighest: #f7f8fc;
+  --color-skymid: #dfe7f4;
+
   --color-linecolor: #3e4da1;
-  --color-logocolor: #1840b8;
-  --color-title: #3e4da1;
   --color-linecolor2: #dfe7f4;
+
+  --color-logocolor: #1840b8;
+
+  --color-title: #3e4da1;
   --color-gray: #73757c;
   --color-textblack: #121212;
   --color-titleblack: #272c3c;
