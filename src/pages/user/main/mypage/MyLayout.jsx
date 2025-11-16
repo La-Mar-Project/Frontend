@@ -33,11 +33,11 @@ export default function MyLayout() {
           <div className="flex gap-4">
             <p>•</p>
             <NavLink to="history" className={active}>
-              예약/취소 기록
+              예약/취소 내역
             </NavLink>
           </div>
         </div>
-        <div className="py-[50px] px-[110px] flex justify-center items-center">
+        <div className="py-[50px] px-[80px] flex justify-center items-center">
           <img src={Logoblue} alt="logo" />
         </div>
       </div>

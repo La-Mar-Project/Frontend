@@ -1,20 +1,53 @@
 @import "tailwindcss";
 
 @theme {
-  --color-blue-primary: #f6f7ff;
-  --color-blue-login: #d9ddf1;
+  --color-logocolor: hsla(225, 77%, 41%, 1); /* = JJUBULL_logo_type */
+  --color-logocolor2: hsla(225, 71%, 50%, 1); /* = JJUBULL_logo_fill */
+  --color-logocolor: hsla(225, 77%, 41%, 1); /* = JJUBULL_logo_type */
+  --color-logo-fill: hsla(225, 71%, 50%, 1); /* = JJUBULL_logo_fill */
 
-  --color-skylight: #eef4ff;
-  --color-skylighest: #f7f8fc;
-  --color-skymid: #dfe7f4;
+  --color-blue-primary: hsla(228, 45%, 98%, 1);
+  --color-blue-login: hsla(217, 49%, 92%, 1); /* = sky_mid_s */
 
+  /* Sky scale */
+  --color-sky-lighest-f: hsla(228, 45%, 98%, 1); /* = sky_lighest_f */
+  --color-sky-light-f: hsla(219, 100%, 97%, 1); /* = sky_light_f */
+  --color-sky-mid-s: hsla(217, 49%, 92%, 1); /* = sky_mid_s */
+
+  /* Grays */
+  --color-gray-lightest-b: hsla(0, 0%, 95%, 1); /* = gray_lightest_b */
+  --color-gray-calandar-s: hsla(0, 0%, 91%, 1); /* = gray_calandar_s */
+  --color-gray-mid-b: hsla(0, 0%, 74%, 1); /* = gray_mid_b */
+  --color-gray-sub-t: hsla(227, 4%, 47%, 1);
+  /* Text */
+  --color-titleblack: hsla(226, 21%, 19%, 1);
+  --color-textblack: #121212; /* 기존 유지(원하면 black_t로 바꿔도 됨) */
+  --color-white-t: hsla(0, 0%, 99%, 1); /* = white_t */
+  --color-black-t: hsla(226, 21%, 19%, 1);
+
+  /* Lines (기존 유지 — 필요시 브랜드 블루로 조정) */
   --color-linecolor: #3e4da1;
   --color-linecolor2: #dfe7f4;
 
-  --color-logocolor: #1840b8;
-
+  /* Titles / Accents (기존 유지) */
   --color-title: #3e4da1;
-  --color-gray: #73757c;
-  --color-textblack: #121212;
-  --color-titleblack: #272c3c;
+
+  /* Notifications & Status */
+  --color-yellow-notifi-b: hsla(54, 97%, 77%, 1); /* = yellow_notifi_b */
+  --color-red-notifi-t: hsla(0, 85%, 54%, 1); /* = red_notifi_t */
+  --color-red-notifi-b: hsla(0, 100%, 93%, 1); /* = red_notifi_b */
+
+  /* Reservation CTA (Orange pair) */
+  --color-orange-reservRequest-b: hsla(
+    25,
+    99%,
+    65%,
+    1
+  ); /* = orange_reservRequest_b */
+  --color-orange-reservRequest-t: hsla(
+    25,
+    94%,
+    45%,
+    1
+  ); /* = orange_reservRequest_t */
 }

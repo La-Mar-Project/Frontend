@@ -1,4 +1,6 @@
-import LoginButton from "../../components/user/login/LoginButton";
+import LoginGoogle from "../../components/user/login/LoginGoogle";
+
+const API = import.meta.env.VITE_REST_URL;
 
 export default function Login() {
   return (
@@ -13,26 +15,12 @@ export default function Login() {
             <p>쭈불에서 즐거운 시간을 보내세요!</p>
           </p>
           <div className="flex flex-col gap-[10px]">
-            <LoginButton
-              text="카카오로 로그인하기"
-              bgcolor="FAE100"
-              textcolor="#343434"
-            />
-            <LoginButton
-              text="비회원으로 확인할래요"
-              bgcolor="#F0F0F0"
-              textcolor="#343434"
-            />
+            <LoginGoogle />
           </div>
           <div className="flex flex-col gap-[7px]">
             <p className="text-center text-[18px] font-[100]">
               라마르 피싱이 처음이라면?
             </p>
-            <LoginButton
-              text="카카오로 간편 회원가입하기"
-              bgcolor="#FDFDFD"
-              textcolor="#2754DA"
-            />
           </div>
         </section>
       </div>

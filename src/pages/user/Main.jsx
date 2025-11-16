@@ -5,7 +5,7 @@ import Header from "../../components/user/Header";
 const base =
   "px-[25px] py-5 text-[22px] font-regular border-t-2 flex items-center justify-center text-center";
 const active = "bg-linecolor text-white";
-const hover = "hover:bg-skylight hover:text-linecolor";
+const hover = "hover:bg-sky-mid-s hover:text-linecolor";
 
 const navClass = ({ isActive }) => `${base} ${hover} ${isActive ? active : ""}`;
 
@@ -16,7 +16,7 @@ export default function Main() {
     <div className="flex flex-col min-h-svh">
       <Header />
       <section className="grid-rows-[auto_159px_1fr] text-title grid grid-cols-[1.5fr_repeat(5,1fr)] divide-x-2 divide-y-2 divide-linecolor flex-1">
-        <div className="bg-skylight">광고배너</div>
+        <div className="bg-sky-mid-s">광고배너</div>
 
         <NavLink to="notice" className={navClass}>
           중요공지 확인하기
@@ -36,7 +36,7 @@ export default function Main() {
 
         <div
           onClick={() => navigate("/home")}
-          className="hover:bg-skylight hover:text-linecolor border-r-0 border-b-2 px-[25px] py-5 text-[22px] font-regular border-t-2 flex items-center justify-center text-center"
+          className="cursor-pointer hover:bg-skylight hover:text-linecolor border-r-0 border-b-2 px-[25px] py-5 text-[22px] font-regular border-t-2 flex items-center justify-center text-center"
         >
           쭈불 예약하기
         </div>

@@ -32,7 +32,7 @@ export default function IntroLayout() {
             </NavLink>
           </div>
         </div>
-        <div className="py-[50px] px-[110px] flex justify-center items-center">
+        <div className="py-[50px] px-[80px] flex justify-center items-center">
           <img src={Logoblue} alt="logo" />
         </div>
       </div>

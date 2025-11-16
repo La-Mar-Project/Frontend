@@ -28,13 +28,13 @@ export default function Header({ showLogo = true, actionsAlign = "right" }) {
         ].join(" ")}
       >
         <button
-          className="p-[10px] cursor-pointer"
+          className="p-[10px] cursor-pointer shrink-0"
           onClick={() => navigate("/main/mypage")}
         >
           마이페이지
         </button>
-        <button className="p-[10px] cursor-pointer">로그아웃</button>
-        <button className="p-[10px] cursor-pointer">회원가입</button>
+        <button className="p-[10px] cursor-pointer shrink-0">로그아웃</button>
+        <button className="p-[10px] cursor-pointer shrink-0">회원가입</button>
       </div>
     </div>
   );

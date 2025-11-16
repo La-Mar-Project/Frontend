@@ -1,26 +1,45 @@
-import Maincompoenent from "../../../../components/user/main/Maincomponent";
+import MyCoupon from "../../../../components/user/mypage/MyCoupon";
+import BookCancel from "../../../../components/user/mypage/BookCancel";
+import MyInfo from "../../../../components/user/mypage/MyInfo";
+import Button from "../../../../components/user/mypage/Button";
 
 export default function Info() {
   return (
-    <>
-      <div className="px-[70px]">
-        <div className="text-textblack pt-[45px] pb-10 pl-[58px] pr-[27px] flex flex-col justify-center h-[159px] border-b-2 border-linecolor2">
-          <p className="text-[30px]">내 정보</p>
-          <div className="text-[20px] flex justify-between">
-            <p>꼼꼼히 읽어주시고 승선 부탁드립니다!</p>
-            <p className="text-gray">최종수정 : 2025.00.00</p>
+    <div className="flex flex-col pt-[95px] pb-[200px] pr-[110px] gap-[80px] text-[26px] font-[600] text-titleblack">
+      <section className="flex flex-col gap-[60px]">
+        <p className="pl-[75px]">내 정보</p>
+        <div className="pl-[336px]">
+          <MyInfo />
+        </div>
+      </section>
+      <section className="flex flex-col gap-[60px] w-auto pb-[30px]">
+        <p className="pl-[75px]">내 쿠폰</p>
+        <div className="pl-[115px]">
+          <div className="rounded-[10px] px-[30px] py-[25px] grid grid-cols-6 justify-center items-center gap-[12px] bg-sky-mid-s">
+            <MyCoupon />
+            <MyCoupon />
+            <MyCoupon />
+            <MyCoupon />
+            <MyCoupon />
+            <MyCoupon />
+            <MyCoupon />
+            <MyCoupon />
           </div>
         </div>
-      </div>
-
-      <section className="flex flex-col gap-[30px] pl-[70px] pr-[79px] pt-[50px] pb-[150px]">
-        <Maincompoenent
-          num="1"
-          title="쭈불 카페"
-          text="중요한 공지사항은 카페를 통해 안내하고 있습니다."
-          link="http://cafe.naver.com/lamarfishing"
-        />
       </section>
-    </>
+      <section className="flex flex-col gap-[60px] w-auto">
+        <p className="pl-[75px]">예약/취소 내역</p>
+        <section className="flex flex-col gap-6 pl-[115px]">
+          <div className="flex gap-3">
+            <Button text="전체 내역 보기" />
+            <Button text="예약 내역만 보기" />
+            <Button text="취소 내역만 보기" />
+          </div>
+          <div className="flex flex-col">
+            <BookCancel />
+          </div>
+        </section>
+      </section>
+    </div>
   );
 }
