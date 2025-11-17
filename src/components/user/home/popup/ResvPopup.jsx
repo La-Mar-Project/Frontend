@@ -20,9 +20,9 @@ export default function ResvPopup({ isOpen, date, onClose, onConfirm }) {
     if (e.target === e.currentTarget) onClose?.();
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!agreed) return; // 가드
-    onConfirm?.(date);
+    await onConfirm?.(date);
   };
 
   return (

@@ -9,10 +9,13 @@ import Footer from "../../components/user/Footer";
 import Calendar from "../../components/user/home/Calendar";
 import { useNavigate } from "react-router-dom";
 import { useRef, useState, useMemo } from "react";
+import { useUser } from "../../contexts/UserContext";
 
 import CalendarExplain from "../../assets/CalendarExplain.svg";
 
 export default function Home() {
+  const { user } = useUser();
+
   const navigate = useNavigate();
   const calRef = useRef(null);
   const now = useMemo(() => new Date(), []);
@@ -57,7 +60,9 @@ export default function Home() {
             <div className="flex gap-2 text-[26px] items-end">
               안녕하세요
               <div className="flex items-end">
-                <p className="text-[28px] font-semibold">User</p>
+                <p className="text-[28px] font-semibold">
+                  {user.username ?? "User"}
+                </p>
                 님!
               </div>
             </div>

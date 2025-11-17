@@ -21,6 +21,12 @@ export default defineConfig({
           });
         },
       },
+      "/api": {
+        target: "https://jjubul.duckdns.org",
+        changeOrigin: true,
+        secure: false, // https 자체서명일 때만 false, 정식 인증서면 true 또는 삭제
+        rewrite: (path) => path.replace(/^\/api/, ""), // /api 제거하고 백엔드로 전달
+      },
     },
   },
 });

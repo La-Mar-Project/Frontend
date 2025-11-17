@@ -36,7 +36,7 @@ export default function Main() {
 
         <div
           onClick={() => navigate("/home")}
-          className="cursor-pointer hover:bg-skylight hover:text-linecolor border-r-0 border-b-2 px-[25px] py-5 text-[22px] font-regular border-t-2 flex items-center justify-center text-center"
+          className="cursor-pointer hover:bg-sky-mid-s hover:text-linecolor border-r-0 border-b-2 px-[25px] py-5 text-[22px] font-regular border-t-2 flex items-center justify-center text-center"
         >
           쭈불 예약하기
         </div>
