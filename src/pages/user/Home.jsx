@@ -1,5 +1,6 @@
 import Header from "../../components/user/Header";
 import Logoblue from "../../assets/LogoBlue.svg";
+import Logo from "../../assets/Logo.svg";
 import Yearleft from "../../assets/Yearleft.svg";
 import Yearright from "../../assets/Yearright.svg";
 import Monthleft from "../../assets/Monthleft.svg";
@@ -10,8 +11,10 @@ import Calendar from "../../components/user/home/Calendar";
 import { useNavigate } from "react-router-dom";
 import { useRef, useState, useMemo } from "react";
 import { useUser } from "../../contexts/UserContext";
+import { ResvProvider } from "../../contexts/ResvContext";
 
 import CalendarExplain from "../../assets/CalendarExplain.svg";
+import DetailPopup from "../../components/user/home/popup/detailpopup/DetailPopup";
 
 export default function Home() {
   const { user } = useUser();
@@ -53,7 +56,7 @@ export default function Home() {
 
       <div className="gap-[50px] px-[96px] py-[45px] flex h-[382px] w-full bg-[#F6F7FF]">
         <div className="flex justify-center items-center">
-          <img src={Logoblue} className="h-[120px] w-auto" />
+          <img src={Logo} className="h-[350px] w-auto" />
         </div>
         <div className="flex flex-col gap-[26px] font-[400] w-full">
           <div className="flex flex-col items-start text-[24px]">
@@ -214,7 +217,8 @@ export default function Home() {
         <div className="grid grid-rows-[69px_1fr_auto] border-r-2 border-linecolor h-full overflow-hidden">
           <div className="bg-sky-light-f h-[69px]">광고배너</div>
           <div className="flex flex-col justify-between h-full pt-[120px]">
-            <div className="flex flex-col gap-[57px]">
+            <DetailPopup />
+            {/* <div className="flex flex-col gap-[57px]">
               <div className="gap-[15px] flex flex-col justify-center items-center">
                 <div className="w-[156px] h-[124px]">
                   <img src={CalendarExplain} />
@@ -246,24 +250,26 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className="py-[50px] px-[80px] flex justify-center items-center">
               <img src={Logoblue} alt="logo" className="max-w-full h-auto" />
             </div>
           </div>
         </div>
         <div>
-          <Calendar
-            icsUrl="/ics/kr"
-            ref={calRef}
-            onDatesChange={(next) =>
-              setYm((prev) =>
-                prev.year === next.year && prev.month === next.month
-                  ? prev
-                  : { year: next.year, month: next.month }
-              )
-            }
-          />
+          <ResvProvider>
+            <Calendar
+              icsUrl="/ics/kr"
+              ref={calRef}
+              onDatesChange={(next) =>
+                setYm((prev) =>
+                  prev.year === next.year && prev.month === next.month
+                    ? prev
+                    : { year: next.year, month: next.month }
+                )
+              }
+            />
+          </ResvProvider>
         </div>
       </section>
       <Footer />

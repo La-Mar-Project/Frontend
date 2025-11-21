@@ -16,10 +16,27 @@ const PROCESS_BG = {
 
 export default function BookCancel({
   process = "RESERVE_COMPLETED",
+  scheduleDeparture, // 출항일
+  shipFishType, // 어종 / 출조 타입
+  totalPrice, // 금액
   onDetail,
 }) {
-  const label = PROCESS_LABEL[process] ?? "상태";
-  const badgeClass = PROCESS_BG[process] ?? "bg-gray-300";
+  console.log("BookCancel process 값:", process, typeof process);
+
+  // 🔥 문자열이면 공백 제거 + 대문자로 정규화
+  const normalized =
+    typeof process === "string" ? process.trim().toUpperCase() : "";
+
+  const label = PROCESS_LABEL[normalized] ?? (normalized || "상태"); // 모르겠는 값이면 그냥 그 문자열 보여주기
+
+  const badgeClass = PROCESS_BG[normalized] ?? "bg-gray-300";
+
+  // 금액 포맷 (예: 90000 -> "90,000")
+  const priceText =
+    typeof totalPrice === "number"
+      ? totalPrice.toLocaleString()
+      : totalPrice ?? "-";
+
   return (
     <div className="gap-[13px] flex flex-col border-2 border-[#B9BFDC] bg-white w-full rounded-[10px] px-[27px] py-[22px] gap-[12px]">
       <div
@@ -28,9 +45,11 @@ export default function BookCancel({
         {label}
       </div>
       <div className="flex flex-col gap-[10px]">
-        <p className="text-[22px]">09.13(토) 출조 · 쭈갑 </p>
+        <p className="text-[22px]">
+          {scheduleDeparture ?? "-"} 출조 · {shipFishType ?? "-"}
+        </p>
         <div className="text-logocolor text-[20px]  flex justify-between">
-          <p className="">금액: 90,000원</p>
+          <p className="">금액: {priceText}원</p>
           <button
             className="flex font-[400] gap-2"
             onClick={() => onDetail?.()}

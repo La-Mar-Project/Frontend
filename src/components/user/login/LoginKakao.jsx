@@ -1,10 +1,10 @@
-import imgGoogle from "../../../assets/Google.svg";
+import Kakao from "../../../assets/Kakao.png";
 import React from "react";
 
 const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER_URL;
 console.log("AUTH_SERVER >>>", AUTH_SERVER); // 👈 이 줄 추가
 
-export default function LoginGoogle({ disabled }) {
+export default function LoginKakao({ disabled }) {
   const handleClick = () => {
     if (disabled) return;
 
@@ -29,13 +29,9 @@ export default function LoginGoogle({ disabled }) {
     <button
       onClick={handleClick}
       disabled={disabled}
-      className="flex justify-between cursor-pointer bg-[#FFFFFF] border border-gray-mid-b text-[18px] py-[10px] pl-[20px] pr-[100px] rounded-[10px] flex items-center w-auto font-[500]"
-      style={{ opacity: disabled ? 0.6 : 1 }}
+      className="flex justify-center"
     >
-      <div className="w-[30px]">
-        <img src={imgGoogle} alt="Google" />
-      </div>
-      <p>구글로 로그인하기</p>
+      <img src={Kakao} alt="Google" />
     </button>
   );
 }

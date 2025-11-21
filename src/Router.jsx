@@ -10,8 +10,7 @@ import Intro from "./pages/user/main/jjubullinto/Intro";
 import Ship from "./pages/user/main/jjubullinto/Ship";
 import MyLayout from "./pages/user/main/mypage/MyLayout";
 import Info from "./pages/user/main/mypage/Info";
-import Coupon from "./pages/user/main/mypage/Coupon";
-import History from "./pages/user/main/mypage/History";
+
 import LoginCallback from "./pages/user/main/login/LoginCallback";
 
 const router = createBrowserRouter([
@@ -58,11 +57,7 @@ const router = createBrowserRouter([
       {
         path: "mypage",
         element: <MyLayout />,
-        children: [
-          { index: true, element: <Info /> },
-          { path: "coupon", element: <Coupon /> },
-          { path: "history", element: <History /> },
-        ],
+        children: [{ index: true, element: <Info /> }],
       },
     ],
   },

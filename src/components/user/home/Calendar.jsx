@@ -6,6 +6,7 @@ import koLocale from "@fullcalendar/core/locales/ko";
 import icalendarPlugin from "@fullcalendar/icalendar";
 import ResvButton from "./ResvButton";
 import ResvPopup from "./popup/ResvPopup";
+import { useResv } from "../../../contexts/ResvContext";
 
 // 1) 헬퍼: 날짜를 YYYY-MM-DD로
 const toYMD = (d) =>
@@ -14,19 +15,32 @@ const toYMD = (d) =>
   ).padStart(2, "0")}`;
 
 const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
+  const { getScheduleByDate } = useResv(); // ✅ Context 사용
+
   const calendarRef = useRef(null);
   const lastYM = useRef({ year: null, month: null });
   const [selected, setSelected] = useState(null);
   const [popupOpen, setPopupOpen] = useState(false);
   const [popupDate, setPopupDate] = useState(null);
+  const [popupSchedule, setPopupSchedule] = useState(null);
 
   const openPopupFor = (dateStr) => {
+    const schedule = getScheduleByDate(dateStr);
     setPopupDate(dateStr);
+    setPopupSchedule(schedule || null);
     setPopupOpen(true);
     setSelected(dateStr); // 선택 스타일도 함께
   };
   const closePopup = () => {
     setPopupOpen(false);
+  };
+
+  // 예약 가능 여부 체크 후 팝업 열기
+  const handleReserveClick = (dateStr) => {
+    const schedule = getScheduleByDate(dateStr);
+    if (!schedule) return;
+    if (schedule.remainingHeadCount <= 0) return;
+    openPopupFor(dateStr);
   };
 
   // 외부에서 쓸 수 있는 제어 함수들
@@ -66,8 +80,9 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
     <div className="calendarWrap mb-[131px]">
       <FullCalendar
         dateClick={(info) => {
-          setSelected(info.dateStr), openPopupFor(info.dateStr);
-        }} // 클릭 시 선택
+          // 날짜 클릭도 예약 가능일 때만 팝업
+          handleReserveClick(info.dateStr);
+        }}
         dayCellClassNames={(arg) =>
           toYMD(arg.date) === selected ? ["is-selected"] : []
         }
@@ -93,23 +108,7 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
         dayMaxEvents
         // daygrid에서 '일' 빼기
         dayCellContent={(arg) => (
-          <div className="cursor-pointer flex flex-col gap-[15px] pt-2">
-            <div className="flex justify-between items-center px-2">
-              <span className="text-[20px] font-semibold">
-                {arg.date.getDate()}
-              </span>
-              <span className=" text-[18px] font-[400] text-titleblack">
-                N물
-              </span>
-            </div>
-            <div className="text-titleblack flex flex-col text-[16px] font-[400] px-[15px]">
-              <p>쭈갑</p>
-              <p>90,000원</p>
-            </div>
-            <div className="flex justify-center items-center py-[10px]">
-              <ResvButton />
-            </div>
-          </div>
+          <DayCell date={arg.date} onReserve={handleReserveClick} />
         )}
         datesSet={() => {
           const api = calendarRef.current?.getApi();
@@ -157,12 +156,22 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
       <ResvPopup
         isOpen={popupOpen}
         date={popupDate}
+        schedule={popupSchedule}
         onClose={closePopup}
-        onConfirm={(d) => {
+        onConfirm={(d, payload, schedule) => {
           // TODO: 예약 확정 로직
           console.log("예약 확정:", d);
-          closePopup();
+          console.log("예약 더미 payload:", payload);
+          console.log("해당 스케줄 정보:", schedule);
         }}
+
+        //         onConfirm={async (payload, schedule) => {
+        //   await fetch(`/schedules/${schedule.publicId}/reservation`, {
+        //     method: "POST",
+        //     headers: { "Content-Type": "application/json" },
+        //     body: JSON.stringify(payload),
+        //   });
+        // }}
       />
       <style>{`
         .calendarWrap .fc-daygrid-body td {
@@ -240,3 +249,49 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
 });
 
 export default Calendar;
+
+// 🔻 날짜 셀 컴포넌트 (Context 데이터 표시)
+function DayCell({ date, onReserve }) {
+  const { getScheduleByDate } = useResv();
+  const dateStr = toYMD(date);
+  const schedule = getScheduleByDate(dateStr);
+
+  const hasSchedule = !!schedule;
+  const remaining = schedule?.remainingHeadCount ?? null;
+  const canReserve = hasSchedule && remaining > 0;
+
+  const statusLabel = !hasSchedule
+    ? "예약없음"
+    : remaining === 0
+    ? "예약마감"
+    : "예약가능";
+
+  const tideText = hasSchedule ? `${schedule.tide}물` : "(물때)";
+  const fishText = hasSchedule ? schedule.fishType : "(어종)";
+  const priceText = hasSchedule
+    ? `${schedule.price.toLocaleString()}원`
+    : "(승선비)";
+
+  return (
+    <div className="cursor-pointer flex flex-col gap-[15px] pt-2">
+      <div className="flex justify-between items-center px-2">
+        <span className="text-[20px] font-semibold">{date.getDate()}</span>
+        <span className="text-[18px] font-[400] text-titleblack">
+          {tideText}
+        </span>
+      </div>
+      <div className="text-titleblack flex flex-col text-[16px] font-[400] px-[15px]">
+        <p>{fishText}</p>
+        <p>{priceText}</p>
+      </div>
+      <div className="flex justify-center items-center py-[10px]">
+        <ResvButton
+          canReserve={canReserve}
+          status={statusLabel}
+          remainingHeadCount={remaining}
+          onClick={() => onReserve(dateStr)}
+        />
+      </div>
+    </div>
+  );
+}

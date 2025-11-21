@@ -1,4 +1,5 @@
 import LoginGoogle from "../../../../components/user/login/LoginGoogle";
+import LoginKakao from "../../../../components/user/login/LoginKakao";
 
 const API = import.meta.env.VITE_REST_URL;
 
@@ -17,7 +18,7 @@ export default function Login() {
           <div className="flex flex-col gap-[41px]">
             <div className="flex flex-col gap-[10px]">
               <LoginGoogle />
-              <p>카카오 로그인 버튼</p>
+              <LoginKakao />
               <p>네이버 로그인 버튼</p>
             </div>
             비회원로그인 버튼 추후 추가

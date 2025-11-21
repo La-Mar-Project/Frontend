@@ -89,16 +89,23 @@ function PeopleSelect({ value, onChange, min = 1, max = 10 }) {
   );
 }
 
-export default function ResvInfo({ date, minPeople = 1, maxPeople = 10 }) {
-  const [people, setPeople] = useState(minPeople);
-
+export default function ResvInfo({
+  date,
+  username,
+  nickname,
+  phone,
+  headCount,
+  onChangeField,
+  minPeople = 1,
+  maxPeople = 10,
+}) {
   return (
     <div className="flex flex-col gap-5 text-[20px] font-[400]">
       {/* 출항일 */}
-      <section className="flex justify-between w-[420px]">
+      <section className="flex justify-between w-[415px]">
         출항일
         <div className="text-[20px] font-[400] rounded-[10px] flex justify-start items-center w-[291px] h-[34px] px-[10px] py-[5px]">
-          {date ?? "-"}
+          {date}
         </div>
       </section>
 
@@ -109,6 +116,8 @@ export default function ResvInfo({ date, minPeople = 1, maxPeople = 10 }) {
           <input
             className="focus:outline-none w-full text-[16px]"
             placeholder="이름을 입력해주세요."
+            value={username}
+            onChange={(e) => onChangeField?.("username", e.target.value)}
           />
         </div>
       </section>
@@ -121,6 +130,8 @@ export default function ResvInfo({ date, minPeople = 1, maxPeople = 10 }) {
             <input
               className="focus:outline-none w-full text-[16px]"
               placeholder="닉네임을 입력해주세요."
+              value={nickname}
+              onChange={(e) => onChangeField?.("nickname", e.target.value)}
             />
           </div>
           <p className="text-[14px]">
@@ -137,6 +148,8 @@ export default function ResvInfo({ date, minPeople = 1, maxPeople = 10 }) {
             <input
               className="focus:outline-none w-full text-[16px]"
               placeholder="010-0000-0000"
+              value={phone}
+              onChange={(e) => onChangeField?.("phone", e.target.value)}
             />
           </div>
           <p className="text-[14px]">
@@ -150,8 +163,8 @@ export default function ResvInfo({ date, minPeople = 1, maxPeople = 10 }) {
         예약인원
         <div className="flex items-center gap-2">
           <PeopleSelect
-            value={people}
-            onChange={setPeople}
+            value={headCount}
+            onChange={(n) => onChangeField?.("headCount", n)}
             min={minPeople}
             max={maxPeople}
           />
