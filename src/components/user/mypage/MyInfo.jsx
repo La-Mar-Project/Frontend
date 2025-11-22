@@ -1,6 +1,23 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../../../contexts/UserContext";
 
+function formatPhoneDisplay(phone) {
+  if (!phone) return "-";
+
+  const digits = String(phone).replace(/\D/g, ""); // 숫자만 남기기
+  if (!digits) return "-";
+
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) {
+    // 3 - 나머지
+    return digits.slice(0, 3) + "-" + digits.slice(3);
+  }
+  // 3 - 4 - 나머지(최대 4자리)
+  return (
+    digits.slice(0, 3) + "-" + digits.slice(3, 7) + "-" + digits.slice(7, 11)
+  );
+}
+
 export default function MyInfo() {
   const { user } = useUser(); // UserContext에서 가져오기
   const [nickname, setNickname] = useState("");
@@ -20,6 +37,7 @@ export default function MyInfo() {
   //   // TODO: 나중에 닉네임 수정 API + UserContext 업데이트 연결
   //   console.log("닉네임 수정하기 클릭:", nickname);
   // };
+  const phoneDisplay = user?.phone ? formatPhoneDisplay(user.phone) : "-";
 
   return (
     <div className="flex flex-col gap-5 text-[22px] font-[500]">
@@ -52,7 +70,7 @@ export default function MyInfo() {
       <section className="flex justify-between w-[420px]">
         전화번호
         <div className="text-[20px] font-[400] rounded-[10px] flex justify-start items-center w-[291px] h-[34px] px-[10px] py-[5px]">
-          {user.phone ?? "-"}
+          {phoneDisplay}
         </div>
       </section>
     </div>

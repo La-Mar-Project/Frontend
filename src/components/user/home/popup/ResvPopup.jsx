@@ -4,6 +4,7 @@ import ResvInfo from "./ResvInfo";
 import ResvCoupon from "./coupon/ResvCoupon";
 import Terms from "../../../../assets/Terms.png";
 import ResvComplete from "./coupon/ResvComplete";
+import { useUser } from "../../../../contexts/UserContext";
 
 export default function ResvPopup({
   isOpen,
@@ -12,6 +13,8 @@ export default function ResvPopup({
   onClose,
   onConfirm,
 }) {
+  const { user } = useUser();
+
   const MAX_TOTAL_HEADCOUNT = 18;
 
   const remaining = schedule?.remainingHeadCount ?? MAX_TOTAL_HEADCOUNT;
@@ -25,12 +28,22 @@ export default function ResvPopup({
     setAgreed(false);
     setPhase("form");
 
-    // headCount가 현재 선택 가능 범위를 넘으면 맞춰주기
-    setForm((prev) => ({
-      ...prev,
-      headCount: Math.min(prev.headCount || 1, maxSelectableHeadCount || 1),
-    }));
-  }, [isOpen, maxSelectableHeadCount]);
+    // 🔹 팝업 열릴 때 user 정보로 폼 채우기 + headCount 최대값 보정
+    setForm((prev) => {
+      const nextHeadCount = Math.min(
+        prev.headCount || 1,
+        maxSelectableHeadCount || 1
+      );
+
+      return {
+        ...prev,
+        username: user?.username ?? prev.username ?? "",
+        nickname: user?.nickname ?? prev.nickname ?? "",
+        phone: user?.phone ?? prev.phone ?? "",
+        headCount: nextHeadCount,
+      };
+    });
+  }, [isOpen, user, maxSelectableHeadCount]);
 
   const formattedDepartLabel = (() => {
     if (!date) return "-";

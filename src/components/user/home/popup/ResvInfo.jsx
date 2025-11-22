@@ -1,5 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+function formatPhoneDisplay(phone) {
+  if (!phone) return "-";
+
+  const digits = String(phone).replace(/\D/g, ""); // 숫자만 남기기
+  if (!digits) return "-";
+
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) {
+    // 3 - 나머지
+    return digits.slice(0, 3) + "-" + digits.slice(3);
+  }
+  // 3 - 4 - 나머지(최대 4자리)
+  return (
+    digits.slice(0, 3) + "-" + digits.slice(3, 7) + "-" + digits.slice(7, 11)
+  );
+}
+
 function PeopleSelect({ value, onChange, min = 1, max = 10 }) {
   const [open, setOpen] = useState(false);
   const btnRef = useRef(null);
@@ -99,6 +116,8 @@ export default function ResvInfo({
   minPeople = 1,
   maxPeople = 10,
 }) {
+  const displayPhone = formatPhoneDisplay(phone);
+
   return (
     <div className="flex flex-col gap-5 text-[20px] font-[400]">
       {/* 출항일 */}
@@ -148,8 +167,10 @@ export default function ResvInfo({
             <input
               className="focus:outline-none w-full text-[16px]"
               placeholder="010-0000-0000"
-              value={phone}
-              onChange={(e) => onChangeField?.("phone", e.target.value)}
+              value={displayPhone}
+              onChange={(e) =>
+                onChangeField?.("phone", formatPhoneDisplay(e.target.value))
+              }
             />
           </div>
           <p className="text-[14px]">
