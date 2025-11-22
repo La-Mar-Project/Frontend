@@ -23,7 +23,6 @@ export default function BookCancel({
 }) {
   console.log("BookCancel process 값:", process, typeof process);
 
-  // 🔥 문자열이면 공백 제거 + 대문자로 정규화
   const normalized =
     typeof process === "string" ? process.trim().toUpperCase() : "";
 
@@ -31,7 +30,6 @@ export default function BookCancel({
 
   const badgeClass = PROCESS_BG[normalized] ?? "bg-gray-300";
 
-  // 금액 포맷 (예: 90000 -> "90,000")
   const priceText =
     typeof totalPrice === "number"
       ? totalPrice.toLocaleString()

@@ -11,13 +11,13 @@ import Calendar from "../../components/user/home/Calendar";
 import { useNavigate } from "react-router-dom";
 import { useRef, useState, useMemo } from "react";
 import { useUser } from "../../contexts/UserContext";
-import { ResvProvider } from "../../contexts/ResvContext";
+import { useResv } from "../../contexts/ResvContext";
 
-import CalendarExplain from "../../assets/CalendarExplain.svg";
 import DetailPopup from "../../components/user/home/popup/detailpopup/DetailPopup";
 
 export default function Home() {
   const { user } = useUser();
+  const { loadSchedules } = useResv();
 
   const navigate = useNavigate();
   const calRef = useRef(null);
@@ -54,7 +54,7 @@ export default function Home() {
     <div className="min-h-svh">
       <Header showLogo={false} actionsAlign="right" />
 
-      <div className="gap-[50px] px-[96px] py-[45px] flex h-[382px] w-full bg-[#F6F7FF]">
+      <div className="gap-[50px] px-[96px] py-[45px] flex w-full bg-[#F6F7FF]">
         <div className="flex justify-center items-center">
           <img src={Logo} className="h-[350px] w-auto" />
         </div>
@@ -71,16 +71,20 @@ export default function Home() {
             </div>
             출항할 준비가 되셨나요?
           </div>
-          <section className="grid grid-cols-3 gap-3 h-full w-auto">
+          <section className="grid grid-cols-3 gap-3 h-[96px] w-auto">
             <div className={Textstyle} onClick={() => navigate("/main/notice")}>
               중요공지 확인하기
             </div>
             <div className={Textstyle}>쭈불 카페가기</div>
-            <div
-              className={`${Textstyle} row-span-2`}
-              onClick={() => navigate("/main/mypage/history")}
-            >
-              예약 정보 조회
+            <div className="text-logocolor row-span-2 flex flex-col text-center p-3 border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto">
+              <p className="text-[26px]">예약 정보 조회</p>
+              <p className="text-[22px] font-[400] text-black-t px-10">
+                예약 정보 조회 및 취소는010-XXXX-XXXX에 <br />
+                문자로 요청해주세요
+              </p>
+              <p className="text-[20px] font-[400] text-black-t">
+                * 출조 중이나 업무 중에는 답변이 늦을 수 있음을 양해부탁드립니다
+              </p>
             </div>
             <div className={Textstyle}>조과글 확인하기</div>
             <div className={Textstyle} onClick={() => navigate("/main/mypage")}>
@@ -257,19 +261,31 @@ export default function Home() {
           </div>
         </div>
         <div>
-          <ResvProvider>
-            <Calendar
-              icsUrl="/ics/kr"
-              ref={calRef}
-              onDatesChange={(next) =>
-                setYm((prev) =>
-                  prev.year === next.year && prev.month === next.month
-                    ? prev
-                    : { year: next.year, month: next.month }
-                )
-              }
-            />
-          </ResvProvider>
+          <Calendar
+            icsUrl="/ics/kr"
+            ref={calRef}
+            onDatesChange={(next) => {
+              // 1) 년/월 상태 업데이트 (기존 로직 유지)
+              setYm((prev) =>
+                prev.year === next.year && prev.month === next.month
+                  ? prev
+                  : { year: next.year, month: next.month }
+              );
+
+              // 2) 해당 년/월 기준으로 from, to 만들어서 스케줄 로드
+              const mm = String(next.month).padStart(2, "0");
+
+              // next.month 의 말일 계산 (예: 11 → 30, 2 → 28/29)
+              const lastDay = new Date(next.year, next.month, 0).getDate();
+              const dd = String(lastDay).padStart(2, "0");
+
+              const from = `${next.year}-${mm}-01`;
+              const to = `${next.year}-${mm}-${dd}`;
+
+              console.log("[Home] from/to =>", from, to);
+              loadSchedules(from, to);
+            }}
+          />
         </div>
       </section>
       <Footer />

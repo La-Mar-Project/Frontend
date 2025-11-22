@@ -15,7 +15,7 @@ const toYMD = (d) =>
   ).padStart(2, "0")}`;
 
 const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
-  const { getScheduleByDate } = useResv(); // ✅ Context 사용
+  const { getScheduleByDate } = useResv();
 
   const calendarRef = useRef(null);
   const lastYM = useRef({ year: null, month: null });
@@ -29,7 +29,7 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
     setPopupDate(dateStr);
     setPopupSchedule(schedule || null);
     setPopupOpen(true);
-    setSelected(dateStr); // 선택 스타일도 함께
+    setSelected(dateStr);
   };
   const closePopup = () => {
     setPopupOpen(false);
@@ -69,7 +69,6 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
       calendarRef.current?.getApi().today();
     },
     gotoYM(year, month) {
-      // month: 1~12, DST 방지용 정오 지정
       calendarRef.current
         ?.getApi()
         .gotoDate(new Date(year, month - 1, 1, 12, 0, 0));
@@ -80,7 +79,6 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
     <div className="calendarWrap mb-[131px]">
       <FullCalendar
         dateClick={(info) => {
-          // 날짜 클릭도 예약 가능일 때만 팝업
           handleReserveClick(info.dateStr);
         }}
         dayCellClassNames={(arg) =>
@@ -116,7 +114,7 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
           document
             .querySelectorAll(".calendarWrap .fc-daygrid-day.is-holiday")
             .forEach((el) => el.classList.remove("is-holiday"));
-          const center = api.getDate(); // ✅ 현재 활성 월의 날짜
+          const center = api.getDate();
           const next = {
             year: center.getFullYear(),
             month: center.getMonth() + 1,

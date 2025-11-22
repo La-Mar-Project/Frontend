@@ -8,23 +8,23 @@ import Button from "../../../../components/user/mypage/Button";
 import ResvPopup from "../../../../components/user/mypage/ResvPopup";
 import CancelPopup from "../../../../components/user/mypage/CancelPopup";
 
+import { apiGet } from "../../../../utils/api.js";
+
 const TABS = { ALL: "all", RESERVE: "reserve", CANCEL: "cancel" };
 const RESERVE_SET = new Set(["RESERVE_COMPLETED", "DEPOSIT_COMPLETED"]);
 const CANCEL_SET = new Set(["CANCEL_REQUESTED", "CANCEL_COMPLETED"]);
 
-const AUTH_BASE_URL = import.meta.env.VITE_AUTH_SERVER_URL;
-
 export default function Info() {
   const [tab, setTab] = useState(TABS.ALL);
 
-  // ✅ 서버에서 받아온 예약/취소 내역 리스트
+  // 서버에서 받아온 예약/취소 내역 리스트
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // ✅ 어떤 항목을 선택했는지
+  // 어떤 항목을 선택했는지
   const [selectedItem, setSelectedItem] = useState(null);
-  // ✅ 어떤 팝업을 열지: "reserve" | "cancel" | null
+  // 어떤 팝업을 열지: "reserve" | "cancel" | null
   const [popupType, setPopupType] = useState(null);
 
   // 1) 처음에 한 번 전체 목록만 가져오기
@@ -34,7 +34,9 @@ export default function Info() {
         setLoading(true);
         setError(null);
 
-        const res = await fetch(`${AUTH_BASE_URL}/users/me/reservations`);
+        // 실제 요청: {VITE_API_BASE_URL}/users/me/reservations
+        const res = await apiGet("/users/me/reservations");
+
         if (!res.ok) {
           throw new Error(`예약 내역 불러오기 실패 (${res.status})`);
         }
@@ -46,26 +48,16 @@ export default function Info() {
           ? body.data.content
           : [];
 
-        const states = [
-          "RESERVE_COMPLETED",
-          "DEPOSIT_COMPLETED",
-          "CANCEL_REQUESTED",
-          "CANCEL_COMPLETED",
-        ];
+        // 서버에서 내려주는 process 값을 신뢰하고, 없을 때만 기본값
+        const normalizedList = rawList.map((item) => {
+          const up =
+            typeof item.process === "string"
+              ? item.process.trim().toUpperCase()
+              : "";
 
-        const normalizedList = rawList.map((item, idx) => {
-          // 진짜 process 문자열이 있으면 그걸 우선 쓰고
-          if (typeof item.process === "string") {
-            const up = item.process.trim().toUpperCase();
-            if (states.includes(up)) {
-              return { ...item, process: up };
-            }
-          }
-
-          // 🔹 그게 아니면 UI 테스트용으로 상태를 번갈아가면서 할당
           return {
             ...item,
-            process: states[idx % states.length],
+            process: up || "RESERVE_COMPLETED", // fallback (거의 안 쓸 예정)
           };
         });
 
@@ -81,7 +73,7 @@ export default function Info() {
     };
 
     fetchReservations();
-  }, []); // ← tab 의존성 제거
+  }, []);
 
   // 2) 탭에 따라 프론트에서 필터링
   const filtered = useMemo(() => {
@@ -93,26 +85,26 @@ export default function Info() {
     return items;
   }, [tab, items]);
 
-  const handleDetailClick = async (item) => {
-    const res = await fetch(
-      `${AUTH_BASE_URL}/reservations/${item.reservationId}`
-    );
-    const body = await res.json();
-    const detail = body.data; // { ship, reservation, schedule }
+  // 상세보기 클릭 시, 리스트 아이템만 기준으로 팝업 결정
+  const handleDetailClick = (item) => {
+    setSelectedItem(item); // <- 이 item이 그대로 팝업으로 들어감
 
-    setSelectedItem(detail);
+    const listProcess = item.process;
 
-    if (RESERVE_SET.has(detail.reservation.process)) {
+    if (RESERVE_SET.has(listProcess)) {
       setPopupType("reserve");
-    } else if (CANCEL_SET.has(detail.reservation.process)) {
+    } else if (CANCEL_SET.has(listProcess)) {
       setPopupType("cancel");
     } else {
       setPopupType(null);
     }
+
+    console.log("[상세보기 클릭] process =", listProcess);
   };
 
   const closePopup = () => {
     setPopupType(null);
+    setSelectedItem(null);
   };
 
   return (
@@ -123,6 +115,7 @@ export default function Info() {
           <MyInfo />
         </div>
       </section>
+
       <section
         id="section-coupon"
         className="flex flex-col gap-[60px] w-auto pb-[30px]"
@@ -141,6 +134,7 @@ export default function Info() {
           </div>
         </div>
       </section>
+
       <section id="section-history" className="flex flex-col gap-[60px] w-auto">
         <p className="pl-[75px]">예약/취소 내역</p>
         <section className="flex flex-col gap-6 pl-[115px]">
@@ -161,15 +155,20 @@ export default function Info() {
               active={tab === TABS.CANCEL}
             />
           </div>
+
           <div className="flex flex-col gap-3">
+            {loading && (
+              <p className="text-[20px] text-gray-500">불러오는 중...</p>
+            )}
+            {error && <p className="text-[20px] text-red-500">{error}</p>}
             {!loading && !error && filtered.length === 0 && (
               <p className="text-[20px] text-gray-500">내역이 없습니다.</p>
             )}
 
             {filtered.map((it) => (
               <BookCancel
-                key={it.reservationId} // ✅ 백엔드 필드명에 맞춤
-                process={it.process} // 상태값 (RESERVE_COMPLETED 등)
+                key={it.reservationId}
+                process={it.process}
                 scheduleDeparture={it.scheduleDeparture}
                 shipFishType={it.shipFishType}
                 totalPrice={it.totalPrice}
@@ -179,21 +178,19 @@ export default function Info() {
           </div>
         </section>
       </section>
-      {/* ✅ 예약/입금 관련 팝업 */}
+
+      {/* 예약/입금 관련 팝업 */}
       <ResvPopup
         isOpen={popupType === "reserve"}
         onClose={closePopup}
-        detail={selectedItem}
-        // 나중에 date, 금액 등 props를 selectedItem에서 꺼내서 넘기면 됨
-        // date={selectedItem?.something}
-        // onConfirm={...}
+        item={selectedItem}
       />
 
-      {/* ✅ 취소 관련 팝업 */}
+      {/* 취소 관련 팝업 */}
       <CancelPopup
         isOpen={popupType === "cancel"}
         onClose={closePopup}
-        // 마찬가지로 selectedItem을 기반으로 상세 데이터 넘기면 됨
+        item={selectedItem}
       />
     </div>
   );

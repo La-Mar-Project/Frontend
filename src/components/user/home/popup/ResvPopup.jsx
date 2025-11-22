@@ -12,6 +12,26 @@ export default function ResvPopup({
   onClose,
   onConfirm,
 }) {
+  const MAX_TOTAL_HEADCOUNT = 18;
+
+  const remaining = schedule?.remainingHeadCount ?? MAX_TOTAL_HEADCOUNT;
+
+  const maxSelectableHeadCount = Math.min(MAX_TOTAL_HEADCOUNT, remaining);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // 팝업 열릴 때마다 동의/단계 초기화
+    setAgreed(false);
+    setPhase("form");
+
+    // headCount가 현재 선택 가능 범위를 넘으면 맞춰주기
+    setForm((prev) => ({
+      ...prev,
+      headCount: Math.min(prev.headCount || 1, maxSelectableHeadCount || 1),
+    }));
+  }, [isOpen, maxSelectableHeadCount]);
+
   const formattedDepartLabel = (() => {
     if (!date) return "-";
 
@@ -114,6 +134,8 @@ export default function ResvPopup({
                     onChangeField={(key, value) =>
                       setForm((prev) => ({ ...prev, [key]: value }))
                     }
+                    minPeople={1}
+                    maxPeople={maxSelectableHeadCount}
                   />
                 </div>
               </section>
@@ -155,6 +177,10 @@ export default function ResvPopup({
                 <textarea
                   placeholder="메모 남겨주세요."
                   className="mt-1 w-full h-[110px] rounded-[10px] border border-[#828BC0] py-[10px] px-4"
+                  value={form.request}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, request: e.target.value }))
+                  }
                 />
               </section>
               <section className="flex flex-col gap-[25px]">
@@ -219,8 +245,12 @@ export default function ResvPopup({
         <ResvComplete
           date={formattedDepartLabel}
           priceText={priceText}
+          username={form.username}
+          nickname={form.nickname}
+          phone={form.phone}
+          headCount={form.headCount}
+          request={form.request}
           onClose={onClose}
-          onClick={handleOverlay}
         />
       )}
     </div>
