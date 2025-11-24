@@ -1,12 +1,17 @@
+import GuestButton from "../../../../components/user/login/GuestButton";
 import LoginGoogle from "../../../../components/user/login/LoginGoogle";
 import LoginKakao from "../../../../components/user/login/LoginKakao";
+import Logo from "../../../../assets/Logo.svg";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
+
   return (
     <div className="flex justify-center items-center min-h-svh bg-white">
       <div className="flex items-center gap-[166px]">
-        <div className="rounded-full w-[286px] h-[286px] bg-gray-300 flex justify-center items-center">
-          Logo
+        <div className="w-[286px] h-[286px] flex justify-center items-center">
+          <img src={Logo} />
         </div>
         <section className="gap-[26px] flex flex-col px-10 py-15 w-[438px]">
           <div className="text-[22px]">
@@ -19,7 +24,9 @@ export default function Login() {
               <LoginKakao />
               <p>네이버 로그인 버튼</p>
             </div>
-            비회원로그인 버튼 추후 추가
+            <div onClick={() => navigate("/home")}>
+              <GuestButton />
+            </div>
           </div>
         </section>
       </div>

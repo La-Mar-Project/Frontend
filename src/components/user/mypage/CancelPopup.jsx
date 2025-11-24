@@ -26,14 +26,8 @@ const formatDateShort = (value) => {
 export default function CancelPopup({ isOpen, onClose, item }) {
   if (!isOpen || !item) return null;
 
-  const {
-    process,
-    scheduleDeparture,
-    shipFishType,
-    totalPrice,
-    headCount,
-    // cancelReason, cancelRequestedAt, cancelCompletedAt, refundAmount 등 있으면 여기서 꺼내 써도 됨
-  } = item;
+  const { process, scheduleDeparture, shipFishType, totalPrice, headCount } =
+    item;
 
   const statusText = PROCESS_LABEL[process] ?? process ?? "-";
 

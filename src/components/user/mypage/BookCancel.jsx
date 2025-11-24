@@ -1,7 +1,7 @@
 import PopupButton from "../../../assets/PopupButton.svg";
 
 const PROCESS_LABEL = {
-  RESERVE_COMPLETED: "예약접수",
+  RESERVE_COMPLETED: "예약완료",
   DEPOSIT_COMPLETED: "입금확인",
   CANCEL_REQUESTED: "취소접수",
   CANCEL_COMPLETED: "취소완료",
@@ -14,6 +14,22 @@ const PROCESS_BG = {
   CANCEL_COMPLETED: "bg-sky-mid-s text-black-t",
 };
 
+function formatDeparture(dateTimeStr) {
+  if (!dateTimeStr) return "-";
+
+  const [datePart] = dateTimeStr.split("T"); // "2025-12-09"
+  const [y, m, d] = datePart.split("-"); // ["2025","12","09"]
+
+  const dt = new Date(Number(y), Number(m) - 1, Number(d)); // 요일 계산용
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+  const weekday = weekdays[dt.getDay()];
+
+  const mm = String(m).padStart(2, "0");
+  const dd = String(d).padStart(2, "0");
+
+  return `${mm}.${dd}(${weekday})`;
+}
+
 export default function BookCancel({
   process = "RESERVE_COMPLETED",
   scheduleDeparture, // 출항일
@@ -21,13 +37,6 @@ export default function BookCancel({
   totalPrice, // 금액
   onDetail,
 }) {
-  const dummy = {
-    process: "CANCEL_COMPLETED",
-    scheduleDeparture: "2023-11-15",
-    shipFishType: "광어 우럭 출조",
-    totalPrice: 150000,
-  };
-
   console.log("BookCancel process 값:", process, typeof process);
 
   const normalized =
@@ -42,6 +51,8 @@ export default function BookCancel({
       ? totalPrice.toLocaleString()
       : totalPrice ?? "-";
 
+  const departureText = formatDeparture(scheduleDeparture);
+
   return (
     <div className="gap-[13px] flex flex-col border-2 border-[#B9BFDC] bg-white w-full rounded-[10px] px-[27px] py-[22px] gap-[12px]">
       <div
@@ -51,7 +62,7 @@ export default function BookCancel({
       </div>
       <div className="flex flex-col gap-[10px]">
         <p className="text-[22px]">
-          {scheduleDeparture ?? "-"} 출조 · {shipFishType ?? "-"}
+          {departureText} 출조 · {shipFishType ?? "-"}
         </p>
         <div className="text-logocolor text-[20px]  flex justify-between">
           <p className="">금액: {priceText}원</p>

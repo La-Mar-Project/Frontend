@@ -9,22 +9,39 @@ export default function DetailPopup({ schedule, onReserveClick }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log(
+      "[DetailPopup] useEffect 실행, schedule =",
+      schedule,
+      "publicId =",
+      schedule?.publicId
+    );
     if (!schedule?.publicId) return; // 필드명이 다르면 여기를 맞춰줘 (예: schedule.schedulePublicId)
 
     const fetchDetail = async () => {
       try {
         setLoading(true);
         setError(null);
-
+        console.log(
+          "[DetailPopup] API 호출 시작:",
+          `/schedules/${schedule.publicId}`
+        );
         const res = await apiGet(`/schedules/${schedule.publicId}`);
         const json = await res.json(); // { success, code, message, data }
+
+        console.log("[DetailPopup] raw json:", json);
+        console.log("[DetailPopup] json.data:", json.data);
+        console.log(
+          "[DetailPopup] json.data.reservations:",
+          json.data?.reservations
+        );
 
         if (!json.success) {
           throw new Error(
             json.message || "출항 일정 상세 조회에 실패했습니다."
           );
         }
-
+        const list = json.data.reservations ?? [];
+        console.log("[DetailPopup] setReservations 직전 list:", list);
         // 실제 응답 구조에 맞춰서 reservations 위치만 맞춰주면 됨
         setReservations(json.data.reservations ?? []);
       } catch (e) {
@@ -43,6 +60,16 @@ export default function DetailPopup({ schedule, onReserveClick }) {
   // 날짜 포맷팅은 나중에 따로 helper 빼도 좋음
   const [, m, d] = schedule.date.split("-");
   const label = `${Number(m)}월 ${Number(d)}일`;
+
+  console.log("[DetailPopup] render 시점 reservations:", reservations);
+  console.log(
+    "[DetailPopup] render flags => loading:",
+    loading,
+    "error:",
+    error,
+    "len:",
+    reservations.length
+  );
 
   const statusLabelMap = {
     RESERVE_REQUESTED: "예약접수",
@@ -93,7 +120,7 @@ export default function DetailPopup({ schedule, onReserveClick }) {
             <DetailList
               key={item.reservationPublicId ?? item.id}
               index={index}
-              member={item.name ?? item.bookerName}
+              member={item.nickname ?? item.name ?? item.bookerName}
               count={String(item.headCount ?? item.people ?? 0)}
               state={toStatusLabel(item.process ?? item.status)}
             />
@@ -104,6 +131,7 @@ export default function DetailPopup({ schedule, onReserveClick }) {
           canReserve={schedule.remainingHeadCount > 0}
           status={schedule.remainingHeadCount > 0 ? "예약하기" : "예약마감"}
           remainingHeadCount={schedule.remainingHeadCount}
+          type={schedule.type ?? "NORMAL"}
           onClick={onReserveClick}
         />
       </div>

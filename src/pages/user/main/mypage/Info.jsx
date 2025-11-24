@@ -48,6 +48,18 @@ export default function Info() {
           ? body.data.content
           : [];
 
+        console.log("[예약 API rawList]", rawList);
+        rawList.forEach((item, idx) => {
+          console.log(
+            `[raw ${idx}] process:`,
+            item.process,
+            "typeof:",
+            typeof item.process,
+            "item:",
+            item
+          );
+        });
+
         // 서버에서 내려주는 process 값을 신뢰하고, 없을 때만 기본값
         const normalizedList = rawList.map((item) => {
           const up =
@@ -100,6 +112,16 @@ export default function Info() {
     }
 
     console.log("[상세보기 클릭] process =", listProcess);
+  };
+
+  const handleCancelRequested = (reservationPublicId) => {
+    setItems((prev) =>
+      prev.map((it) =>
+        it.reservationPublicId === reservationPublicId
+          ? { ...it, process: "CANCEL_REQUESTED" }
+          : it
+      )
+    );
   };
 
   const closePopup = () => {
@@ -184,6 +206,7 @@ export default function Info() {
         isOpen={popupType === "reserve"}
         onClose={closePopup}
         item={selectedItem}
+        onCancelRequested={handleCancelRequested}
       />
 
       {/* 취소 관련 팝업 */}

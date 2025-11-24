@@ -330,11 +330,6 @@ export default function Home() {
               console.log("예약 확정:", d);
               console.log("예약 payload:", payload);
               console.log("스케줄:", schedule);
-
-              // 성공 후 닫기 + 기본 상태로 복귀하고 싶으면:
-              setResvPopupOpen(false);
-              setDetailOpen(false);
-              setSelectedSchedule(null);
             }}
           />
         )}

@@ -21,6 +21,12 @@ export default function ResvPopup({
 
   const maxSelectableHeadCount = Math.min(MAX_TOTAL_HEADCOUNT, remaining);
 
+  const normalizedType =
+    typeof schedule?.type === "string"
+      ? schedule.type.trim().toUpperCase()
+      : "NORMAL";
+  const isEarly = normalizedType === "EARLY";
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -103,7 +109,6 @@ export default function ResvPopup({
     // 부모에서 API 호출 등 예약 처리
     await onConfirm?.(date, schedule);
 
-    // 🔹 팝업은 유지하고, 화면만 "완료" 상태로 변경
     setPhase("done");
   };
 
@@ -152,16 +157,18 @@ export default function ResvPopup({
                   />
                 </div>
               </section>
-              <section className=" flex flex-col gap-[25px]">
-                <p className="pl-[75px] text-[22px] font-semibold">쿠폰</p>
-                <div className="flex flex-col gap-[9px] px-[110px]">
-                  <ResvCoupon />
-                  <div className="flex gap-[7px] rounded-[10px] w-full px-[15px] py-[10px] border border-[#828BC0]">
-                    시즌3 선예약 쿠폰 <p className="text-5 font-[500]">1</p>매
-                    사용
+              {isEarly && (
+                <section className=" flex flex-col gap-[25px]">
+                  <p className="pl-[75px] text-[22px] font-semibold">쿠폰</p>
+                  <div className="flex flex-col gap-[9px] px-[110px]">
+                    <ResvCoupon />
+                    <div className="flex gap-[7px] rounded-[10px] w-full px-[15px] py-[10px] border border-[#828BC0]">
+                      시즌3 선예약 쿠폰 <p className="text-5 font-[500]">1</p>매
+                      사용
+                    </div>
                   </div>
-                </div>
-              </section>
+                </section>
+              )}
               <section className=" flex flex-col gap-[25px]">
                 <p className="pl-[75px] text-[22px] font-semibold">인증코드</p>
               </section>
@@ -264,6 +271,7 @@ export default function ResvPopup({
           headCount={form.headCount}
           request={form.request}
           onClose={onClose}
+          type={normalizedType}
         />
       )}
     </div>

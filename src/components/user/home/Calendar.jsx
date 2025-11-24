@@ -22,28 +22,7 @@ const Calendar = forwardRef(function Calendar(
   const calendarRef = useRef(null);
   const lastYM = useRef({ year: null, month: null });
   const [selected, setSelected] = useState(null);
-  // const [popupOpen, setPopupOpen] = useState(false);
-  // const [popupDate, setPopupDate] = useState(null);
-  // const [popupSchedule, setPopupSchedule] = useState(null);
 
-  // const openPopupFor = (dateStr) => {
-  //   const schedule = getScheduleByDate(dateStr);
-  //   setPopupDate(dateStr);
-  //   setPopupSchedule(schedule || null);
-  //   setPopupOpen(true);
-  //   setSelected(dateStr);
-  // };
-  // const closePopup = () => {
-  //   setPopupOpen(false);
-  // };
-
-  // // 예약 가능 여부 체크 후 팝업 열기
-  // const handleReserveClick = (dateStr) => {
-  //   const schedule = getScheduleByDate(dateStr);
-  //   if (!schedule) return;
-  //   if (schedule.remainingHeadCount <= 0) return;
-  //   openPopupFor(dateStr);
-  // };
   const handleReserveClick = (dateStr) => {
     const schedule = getScheduleByDate(dateStr);
     if (!schedule) return;
@@ -51,7 +30,6 @@ const Calendar = forwardRef(function Calendar(
 
     setSelected(dateStr); // 클릭된 날짜 하이라이트용
 
-    // 🔥 부모(Home)에 선택된 스케줄 전달
     onSelectSchedule?.({
       ...schedule, // tide, fishType, price, remainingHeadCount 등
       date: dateStr, // 날짜도 같이 넘겨주기
@@ -167,26 +145,7 @@ const Calendar = forwardRef(function Calendar(
             : []
         }
       />
-      {/* <ResvPopup
-        isOpen={popupOpen}
-        date={popupDate}
-        schedule={popupSchedule}
-        onClose={closePopup}
-        onConfirm={(d, payload, schedule) => {
-          // TODO: 예약 확정 로직
-          console.log("예약 확정:", d);
-          console.log("예약 더미 payload:", payload);
-          console.log("해당 스케줄 정보:", schedule);
-        }}
 
-        //         onConfirm={async (payload, schedule) => {
-        //   await fetch(`/schedules/${schedule.publicId}/reservation`, {
-        //     method: "POST",
-        //     headers: { "Content-Type": "application/json" },
-        //     body: JSON.stringify(payload),
-        //   });
-        // }}
-      /> */}
       <style>{`
         .calendarWrap .fc-daygrid-body td {
             border-color: #E7E7E7;
@@ -277,7 +236,7 @@ function DayCell({ date, onReserve }) {
     ? "예약없음"
     : remaining === 0
     ? "예약마감"
-    : "예약가능";
+    : "예약하기";
 
   const tideText = hasSchedule ? `${schedule.tide}물` : "(물때)";
   const fishText = hasSchedule ? schedule.fishType : "(어종)";
@@ -302,6 +261,7 @@ function DayCell({ date, onReserve }) {
           canReserve={canReserve}
           status={statusLabel}
           remainingHeadCount={remaining}
+          type={schedule?.type ?? "NORMAL"}
           onClick={() => onReserve(dateStr)}
         />
       </div>

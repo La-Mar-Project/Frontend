@@ -1,3 +1,7 @@
+import { useEffect, useState } from "react";
+
+const API_BASE = import.meta.env.VITE_API_SERVER_URL || "/api";
+
 const PROCESS_LABEL = {
   RESERVE_COMPLETED: "예약 접수",
   DEPOSIT_COMPLETED: "입금 확인",
@@ -23,17 +27,75 @@ const formatDateShort = (value) => {
   return `${mm}.${dd}(${weekday})`;
 };
 
-export default function ResvPopup({ isOpen, onClose, item }) {
+export default function ResvPopup({
+  isOpen,
+  onClose,
+  item,
+  onCancelRequested,
+}) {
+  const [localProcess, setLocalProcess] = useState(item?.process ?? null);
+  useEffect(() => {
+    setLocalProcess(item?.process ?? null);
+  }, [item]);
   if (!isOpen || !item) return null;
 
-  const { process, scheduleDeparture, shipFishType, totalPrice, headCount } =
-    item;
+  const {
+    scheduleDeparture,
+    shipFishType,
+    totalPrice,
+    headCount,
+    reservationPublicId,
+  } = item;
 
-  const statusText = PROCESS_LABEL[process] ?? process ?? "-";
-
+  const statusText = PROCESS_LABEL[localProcess] ?? localProcess ?? "-";
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose?.();
   };
+
+  const handleCancelRequest = async () => {
+    if (!reservationPublicId) {
+      alert("예약 ID가 없어 취소 신청을 할 수 없습니다.");
+      return;
+    }
+
+    const ok = window.confirm("정말로 이 예약에 대해 취소 신청을 하시겠어요?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(
+        `${API_BASE}/reservations/${reservationPublicId}/cancel-request`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            // 필요하면 Authorization 추가
+            // Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            process: "CANCEL_REQUESTED",
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("취소 신청에 실패했습니다.");
+      }
+
+      setLocalProcess("CANCEL_REQUESTED");
+      onCancelRequested?.(reservationPublicId);
+
+      alert("취소 신청이 완료되었습니다.");
+      onClose?.(); // 팝업 닫기
+      // 필요하면 부모에서 리스트 갱신하도록 콜백 추가해서 써도 됨
+    } catch (err) {
+      console.error(err);
+      alert("취소 신청 중 오류가 발생했습니다.");
+    }
+  };
+
+  const isCancelable =
+    localProcess === "RESERVE_COMPLETED" ||
+    localProcess === "DEPOSIT_COMPLETED";
 
   return (
     <div
@@ -72,6 +134,22 @@ export default function ResvPopup({ isOpen, onClose, item }) {
                 <p>{formatMoney(totalPrice)}원</p>
               </div>
             </section>
+
+            <div className="px-[26px] pb-[24px] pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={handleCancelRequest}
+                disabled={!isCancelable}
+                className={`px-6 py-2 rounded-[8px] text-[18px] font-semibold border
+                  ${
+                    isCancelable
+                      ? "bg-[#f54d4d] text-white border-[#FF6666] cursor-pointer"
+                      : "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
+                  }`}
+              >
+                예약 취소 신청
+              </button>
+            </div>
           </div>
         </div>
       </div>

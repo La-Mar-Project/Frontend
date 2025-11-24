@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../../../contexts/UserContext";
 
-const API_BASE = import.meta.env.VITE_API_SERVER_URL;
+const AUTH_BASE = import.meta.env.VITE_AUTH_SERVER_URL
+  ? import.meta.env.VITE_AUTH_SERVER_URL
+  : "";
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -21,8 +23,31 @@ export default function Signup() {
   const state = location.state || {};
   const params = new URLSearchParams(location.search);
 
-  const provider = state.provider ?? params.get("provider");
-  const sub = state.sub ?? params.get("sub");
+  const jwt = params.get("jwt");
+
+  let jwtPayload = null;
+  if (jwt) {
+    try {
+      const [, payloadBase64] = jwt.split(".");
+      const normalized = payloadBase64.replace(/-/g, "+").replace(/_/g, "/");
+      const decoded = atob(normalized);
+      jwtPayload = JSON.parse(decoded);
+    } catch (e) {
+      console.error("JWT 디코딩 실패:", e);
+    }
+  }
+
+  const provider =
+    state.provider ?? jwtPayload?.provider ?? params.get("provider");
+  const sub = state.sub ?? jwtPayload?.sub ?? params.get("sub");
+
+  console.log("Signup location", {
+    state,
+    search: location.search,
+    jwtPayload,
+    provider,
+    sub,
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,28 +70,28 @@ export default function Signup() {
       return;
     }
 
-    if (!provider || !sub) {
+    if (!jwt) {
       setError("소셜 로그인 정보가 없습니다. 처음부터 다시 로그인해주세요.");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/user/oauth2`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          provider,
-          sub,
-          username: form.username,
-          nickname: form.nickname,
-          phonenumber: form.phonenumber,
-        }),
+      const formData = new FormData();
+      formData.append("jwt", jwt);
+      formData.append("nickname", form.nickname);
+      formData.append("phone", form.phonenumber);
+      formData.append("username", form.username);
+
+      const base = AUTH_BASE.replace(/\/+$/, "");
+      const res = await fetch(`${base}/signup`, {
+        method: "POST", // 백엔드가 POST라고 확정된 경우
+        body: formData,
       });
 
       if (!res.ok) {
+        const text = await res.text();
+        console.error("회원가입 API 실패:", res.status, text);
         throw new Error("회원가입 실패");
       }
 
@@ -75,17 +100,24 @@ export default function Signup() {
       const profile = body.data ?? {
         username: form.username,
         nickname: form.nickname,
-        phonenumber: form.phonenumber,
+        phone: form.phonenumber,
       };
 
       console.log("회원가입 폼 제출:", {
         ...profile,
-        provider,
-        sub,
+        jwt,
       });
 
-      if (body.accessToken) {
-        localStorage.setItem("accessToken", body.accessToken);
+      const accessToken = body.accessToken ?? body.access_token;
+
+      const refreshToken =
+        res.headers.get("refresh_token") ?? res.headers.get("Refresh-Token");
+
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+      }
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
       }
 
       setUser((prev) => ({

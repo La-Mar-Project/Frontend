@@ -11,12 +11,16 @@ export default function ResvComplete({
   phone,
   headCount,
   request,
+  type = "NORMAL",
 }) {
+  const normalizedType =
+    typeof type === "string" ? type.trim().toUpperCase() : "NORMAL";
+  const isEarly = normalizedType === "EARLY";
   return (
     <div className="bg-white rounded-[10px] w-[870px] shadow-xl max-h-[85vh] flex flex-col translate-x-40">
       <div className="flex-1 overflow-y-auto flex flex-col gap-[88px]">
         <div className="pt-[110px] px-[108px]">
-          <div className="flex flex-col justify-center items-center gap-[6px] px-[100px] pt-[30px] pb-[50px] bg-sky-lightest-f rounded-[30px] drop-shadow-lg">
+          <div className="flex flex-col justify-center items-center gap-[6px] px-[90px] pt-[30px] pb-[50px] bg-sky-lightest-f rounded-[30px] drop-shadow-lg">
             <div className="w-[72px]">
               <img src={Logo} />
             </div>
@@ -62,15 +66,17 @@ export default function ResvComplete({
                 </div>
               </div>
             </div>
-            <div className="flex gap-[160px]">
-              <p className="text-[22px] font-[600]">쿠폰</p>
-              <div className="flex w-[380px] justify-between shrink-0">
-                <div className="flex gap-[7px]">
-                  시즌3 선예약 쿠폰 <p className="text-5 font-[500]">1</p>매
-                  사용
+            {isEarly && (
+              <div className="flex gap-[160px]">
+                <p className="text-[22px] font-[600]">쿠폰</p>
+                <div className="flex w-[380px] justify-between shrink-0">
+                  <div className="flex gap-[7px]">
+                    시즌3 선예약 쿠폰 <p className="text-5 font-[500]">1</p>매
+                    사용
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
             <div className="flex gap-[123px]">
               <p className="text-[22px] font-[600]">결제금액</p>
 

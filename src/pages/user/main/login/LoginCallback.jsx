@@ -1,4 +1,3 @@
-// src/pages/user/main/login/LoginCallback.jsx
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -21,7 +20,6 @@ export default function LoginCallback() {
       }
 
       try {
-        // dev/production 환경에 따라 콜백 URL 만들기
         let callbackUrl = "";
         if (IS_PROD) {
           const base = AUTH_SERVER.replace(/\/+$/, "");
@@ -29,7 +27,6 @@ export default function LoginCallback() {
             code
           )}`;
         } else {
-          // Vite 프록시 타게 상대 경로
           callbackUrl = `/auth/google/callback?code=${encodeURIComponent(
             code
           )}`;
@@ -40,7 +37,12 @@ export default function LoginCallback() {
           credentials: "include",
         });
 
-        // 🔴 404 = 회원가입 안 된 유저
+        console.log("callback code:", code, "url:", callbackUrl);
+        console.log("callback status:", res.status);
+        const text = await res.clone().text();
+        console.log("raw response text:", text);
+
+        // 404 = 회원가입 안 된 유저
         if (res.status === 404) {
           let body = null;
           try {
@@ -54,7 +56,6 @@ export default function LoginCallback() {
 
           console.log("신규 소셜 유저:", body);
 
-          // provider/sub를 들고 회원가입 페이지로 이동
           navigate("/signup", {
             replace: true,
             state: { provider, sub },
@@ -69,12 +70,11 @@ export default function LoginCallback() {
           return;
         }
 
-        // ✅ 기존 회원: 토큰 등 받기
         const data = await res.json();
         console.log("기존 회원 callback data:", data);
 
-        const accessToken = data.accessToken;
-        const refreshToken = data.refreshToken;
+        const accessToken = data.access_token;
+        const refreshToken = res.headers.get("refresh_token");
 
         if (accessToken) {
           localStorage.setItem("accessToken", accessToken);

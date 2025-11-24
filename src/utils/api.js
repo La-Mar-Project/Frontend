@@ -42,7 +42,8 @@ export const apiRequest = async (endpoint, options = {}) => {
   };
 
   // 토큰이 있으면 Authorization 헤더 추가 (localStorage에서 가져오기)
-  const token = localStorage.getItem("token");
+  // api.js
+  const token = localStorage.getItem("accessToken");
   if (token) {
     defaultHeaders["Authorization"] = `Bearer ${token}`;
   }

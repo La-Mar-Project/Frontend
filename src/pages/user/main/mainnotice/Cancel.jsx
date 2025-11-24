@@ -16,8 +16,18 @@ export default function Cancel() {
         <Maincompoenent
           num="1"
           title="취소 방법 안내"
-          text="중요한 공지사항은 카페를 통해 안내하고 있습니다."
-          link="http://cafe.naver.com/lamarfishing"
+          text={
+            <p>
+              예약자의 휴대폰으로 사모장에게{" "}
+              <span className="font-[500]">문자</span>(전화X) 주시면{" "}
+              <span className="font-[500]">직접 취소해드립니다.</span> <br />*
+              사모장 연락처: <span className="font-[500]">010-5897-0560</span>{" "}
+              <br />* 라마르는 예약 시 휴대폰번호 외의 개인정보를 아무 것도 받지
+              않으므로, <br />
+              본인 확인은 휴대폰번호로만 가능합니다~ <br />* 출조 중이나 업무
+              중에는 답변이 늦을 수 있음을 양해부탁드립니다
+            </p>
+          }
         />
       </section>
     </div>
