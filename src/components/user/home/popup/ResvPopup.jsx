@@ -75,12 +75,12 @@ export default function ResvPopup({
   });
 
   const [agreed, setAgreed] = useState(false);
-  const [phase, setPhase] = useState("form"); // 🔹 'form' | 'done'
+  const [phase, setPhase] = useState("form");
 
   useEffect(() => {
     if (isOpen) {
       setAgreed(false);
-      setPhase("form"); // 🔹 다시 작성 화면으로
+      setPhase("form");
     }
   }, [isOpen]);
 

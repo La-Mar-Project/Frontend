@@ -21,6 +21,13 @@ export default function BookCancel({
   totalPrice, // 금액
   onDetail,
 }) {
+  const dummy = {
+    process: "CANCEL_COMPLETED",
+    scheduleDeparture: "2023-11-15",
+    shipFishType: "광어 우럭 출조",
+    totalPrice: 150000,
+  };
+
   console.log("BookCancel process 값:", process, typeof process);
 
   const normalized =

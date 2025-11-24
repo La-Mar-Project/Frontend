@@ -1,19 +1,28 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../../../contexts/UserContext";
-// 나중에 실제 API 붙일 때 사용할 수 있음
-// import { apiPost } from "../../utils/api";
+
+const API_BASE = import.meta.env.VITE_API_SERVER_URL;
 
 export default function Signup() {
   const [form, setForm] = useState({
     username: "",
     nickname: "",
+    phonenumber: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { setUser } = useUser();
+
+  const state = location.state || {};
+  const params = new URLSearchParams(location.search);
+
+  const provider = state.provider ?? params.get("provider");
+  const sub = state.sub ?? params.get("sub");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,29 +36,57 @@ export default function Signup() {
     e.preventDefault();
     setError(null);
 
-    // 간단한 프론트 검증
-    if (!form.username.trim() || !form.nickname.trim()) {
-      setError("이름과 닉네임을 모두 입력해주세요.");
+    if (
+      !form.username.trim() ||
+      !form.nickname.trim() ||
+      !form.phonenumber.trim()
+    ) {
+      setError("이름과 닉네임, 전화번호를 모두 입력해주세요.");
+      return;
+    }
+
+    if (!provider || !sub) {
+      setError("소셜 로그인 정보가 없습니다. 처음부터 다시 로그인해주세요.");
       return;
     }
 
     setLoading(true);
     try {
-      // 🔻 실제 백엔드 회원가입 API 연동 시 이렇게 쓰면 됨 (엔드포인트는 협의 필요)
-      /*
-      const res = await apiPost("/users/me/profile", form);
-      if (!res.ok) throw new Error("회원가입 실패");
+      const res = await fetch(`${API_BASE}/user/oauth2`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          provider,
+          sub,
+          username: form.username,
+          nickname: form.nickname,
+          phonenumber: form.phonenumber,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("회원가입 실패");
+      }
 
       const body = await res.json();
-      const profile = body.data; // 백엔드 응답 형태에 맞게 조정
-      */
 
-      const profile = {
+      const profile = body.data ?? {
         username: form.username,
         nickname: form.nickname,
+        phonenumber: form.phonenumber,
       };
 
-      console.log("회원가입 폼 제출:", form);
+      console.log("회원가입 폼 제출:", {
+        ...profile,
+        provider,
+        sub,
+      });
+
+      if (body.accessToken) {
+        localStorage.setItem("accessToken", body.accessToken);
+      }
 
       setUser((prev) => ({
         ...(prev || {}),
@@ -89,6 +126,17 @@ export default function Signup() {
               value={form.nickname}
               onChange={handleChange}
               placeholder="닉네임을 입력해주세요"
+              className="border border-gray-300 rounded-[10px] px-3 py-2 text-[16px] focus:outline-none focus:ring-2 focus:ring-sky-mid-s"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[16px] font-[500]">전화번호</label>
+            <input
+              name="phonenumber"
+              value={form.phonenumber}
+              onChange={handleChange}
+              placeholder="010-0000-0000"
               className="border border-gray-300 rounded-[10px] px-3 py-2 text-[16px] focus:outline-none focus:ring-2 focus:ring-sky-mid-s"
             />
           </div>

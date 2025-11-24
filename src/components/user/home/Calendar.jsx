@@ -5,7 +5,6 @@ import interactionPlugin from "@fullcalendar/interaction";
 import koLocale from "@fullcalendar/core/locales/ko";
 import icalendarPlugin from "@fullcalendar/icalendar";
 import ResvButton from "./ResvButton";
-import ResvPopup from "./popup/ResvPopup";
 import { useResv } from "../../../contexts/ResvContext";
 
 // 1) 헬퍼: 날짜를 YYYY-MM-DD로
@@ -14,33 +13,49 @@ const toYMD = (d) =>
     d.getDate()
   ).padStart(2, "0")}`;
 
-const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
+const Calendar = forwardRef(function Calendar(
+  { onDatesChange, icsUrl, onSelectSchedule },
+  ref
+) {
   const { getScheduleByDate } = useResv();
 
   const calendarRef = useRef(null);
   const lastYM = useRef({ year: null, month: null });
   const [selected, setSelected] = useState(null);
-  const [popupOpen, setPopupOpen] = useState(false);
-  const [popupDate, setPopupDate] = useState(null);
-  const [popupSchedule, setPopupSchedule] = useState(null);
+  // const [popupOpen, setPopupOpen] = useState(false);
+  // const [popupDate, setPopupDate] = useState(null);
+  // const [popupSchedule, setPopupSchedule] = useState(null);
 
-  const openPopupFor = (dateStr) => {
-    const schedule = getScheduleByDate(dateStr);
-    setPopupDate(dateStr);
-    setPopupSchedule(schedule || null);
-    setPopupOpen(true);
-    setSelected(dateStr);
-  };
-  const closePopup = () => {
-    setPopupOpen(false);
-  };
+  // const openPopupFor = (dateStr) => {
+  //   const schedule = getScheduleByDate(dateStr);
+  //   setPopupDate(dateStr);
+  //   setPopupSchedule(schedule || null);
+  //   setPopupOpen(true);
+  //   setSelected(dateStr);
+  // };
+  // const closePopup = () => {
+  //   setPopupOpen(false);
+  // };
 
-  // 예약 가능 여부 체크 후 팝업 열기
+  // // 예약 가능 여부 체크 후 팝업 열기
+  // const handleReserveClick = (dateStr) => {
+  //   const schedule = getScheduleByDate(dateStr);
+  //   if (!schedule) return;
+  //   if (schedule.remainingHeadCount <= 0) return;
+  //   openPopupFor(dateStr);
+  // };
   const handleReserveClick = (dateStr) => {
     const schedule = getScheduleByDate(dateStr);
     if (!schedule) return;
     if (schedule.remainingHeadCount <= 0) return;
-    openPopupFor(dateStr);
+
+    setSelected(dateStr); // 클릭된 날짜 하이라이트용
+
+    // 🔥 부모(Home)에 선택된 스케줄 전달
+    onSelectSchedule?.({
+      ...schedule, // tide, fishType, price, remainingHeadCount 등
+      date: dateStr, // 날짜도 같이 넘겨주기
+    });
   };
 
   // 외부에서 쓸 수 있는 제어 함수들
@@ -93,6 +108,7 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
               );
               cell?.classList.add("is-holiday");
             }
+            console.log(info.event);
           }
         }}
         ref={calendarRef}
@@ -151,7 +167,7 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
             : []
         }
       />
-      <ResvPopup
+      {/* <ResvPopup
         isOpen={popupOpen}
         date={popupDate}
         schedule={popupSchedule}
@@ -170,7 +186,7 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
         //     body: JSON.stringify(payload),
         //   });
         // }}
-      />
+      /> */}
       <style>{`
         .calendarWrap .fc-daygrid-body td {
             border-color: #E7E7E7;
@@ -248,7 +264,6 @@ const Calendar = forwardRef(function Calendar({ onDatesChange, icsUrl }, ref) {
 
 export default Calendar;
 
-// 🔻 날짜 셀 컴포넌트 (Context 데이터 표시)
 function DayCell({ date, onReserve }) {
   const { getScheduleByDate } = useResv();
   const dateStr = toYMD(date);

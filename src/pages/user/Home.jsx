@@ -14,8 +14,14 @@ import { useUser } from "../../contexts/UserContext";
 import { useResv } from "../../contexts/ResvContext";
 
 import DetailPopup from "../../components/user/home/popup/detailpopup/DetailPopup";
+import CalendarExplain from "../../assets/CalendarExplain.svg";
+import ResvPopup from "../../components/user/home/popup/ResvPopup";
 
 export default function Home() {
+  const [selectedSchedule, setSelectedSchedule] = useState(null); // 선택된 스케줄(날짜 등)
+  const [detailOpen, setDetailOpen] = useState(false); // 오른쪽 DetailPopup on/off
+  const [resvPopupOpen, setResvPopupOpen] = useState(false); // 예약창(ResvPopup) on/off
+
   const { user } = useUser();
   const { loadSchedules } = useResv();
 
@@ -78,11 +84,11 @@ export default function Home() {
             <div className={Textstyle}>쭈불 카페가기</div>
             <div className="text-logocolor row-span-2 flex flex-col text-center p-3 border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto">
               <p className="text-[26px]">예약 정보 조회</p>
-              <p className="text-[22px] font-[400] text-black-t px-10">
+              <p className="text-[20px] font-[400] text-black-t px-10">
                 예약 정보 조회 및 취소는010-XXXX-XXXX에 <br />
                 문자로 요청해주세요
               </p>
-              <p className="text-[20px] font-[400] text-black-t">
+              <p className="text-[18px] font-[400] text-black-t">
                 * 출조 중이나 업무 중에는 답변이 늦을 수 있음을 양해부탁드립니다
               </p>
             </div>
@@ -221,40 +227,47 @@ export default function Home() {
         <div className="grid grid-rows-[69px_1fr_auto] border-r-2 border-linecolor h-full overflow-hidden">
           <div className="bg-sky-light-f h-[69px]">광고배너</div>
           <div className="flex flex-col justify-between h-full pt-[120px]">
-            <DetailPopup />
-            {/* <div className="flex flex-col gap-[57px]">
-              <div className="gap-[15px] flex flex-col justify-center items-center">
-                <div className="w-[156px] h-[124px]">
-                  <img src={CalendarExplain} />
-                </div>
-                <div className="flex flex-col justify-center items-center">
-                  달력의 날짜를 누르면
-                  <div className="flex gap-1">
-                    해당일의
-                    <div className="flex">
-                      <p className="font-[500]">상세정보</p>가
+            {detailOpen && selectedSchedule ? (
+              <DetailPopup
+                schedule={selectedSchedule}
+                onReserveClick={() => setResvPopupOpen(true)} // 여기서 예약창 띄우기
+              />
+            ) : (
+              <div className="flex flex-col gap-[57px]">
+                <div className="gap-[15px] flex flex-col justify-center items-center">
+                  <div className="w-[156px] h-[124px]">
+                    <img src={CalendarExplain} />
+                  </div>
+                  <div className="flex flex-col justify-center items-center">
+                    달력의 날짜를 누르면
+                    <div className="flex gap-1">
+                      해당일의
+                      <div className="flex">
+                        <p className="font-[500]">상세정보</p>가
+                      </div>
+                      뜹니다!
                     </div>
-                    뜹니다!
+                  </div>
+                </div>
+                <div className="flex flex-col gap-[22px] justify-center items-center">
+                  <div className="shrink-0 rounded-[5px] text-white w-[84px] h-[59px] flex flex-col justify-center items-center py-[10px] px-[10px] bg-logocolor2">
+                    <p className="text-[16px] font-[600]">예약하기</p>
+                    <p className="text-[14px]">(잔여 17)</p>
+                  </div>
+                  <div className="flex flex-col justify-center items-center">
+                    예약하기를 누르면
+                    <div className="flex gap-1">
+                      해당일의
+                      <div className="flex">
+                        <p className="font-[500]">예약창</p>이
+                        {/* 뜹니다! 등 나머지 텍스트 */}
+                      </div>
+                      뜹니다!
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-[22px] justify-center items-center">
-                <div className="shrink-0 rounded-[5px] text-white w-[84px] h-[59px] flex flex-col justify-center items-center py-[10px] px-[10px] bg-logocolor2">
-                  <p className="text-[16px] font-[600]">예약하기</p>
-                  <p className="text-[14px]">(잔여 17)</p>
-                </div>
-                <div className="flex flex-col justify-center items-center">
-                  예약하기를 누르면
-                  <div className="flex gap-1">
-                    해당일의
-                    <div className="flex">
-                      <p className="font-[500]">예약창</p>이
-                    </div>
-                    뜹니다!
-                  </div>
-                </div>
-              </div>
-            </div> */}
+            )}
             <div className="py-[50px] px-[80px] flex justify-center items-center">
               <img src={Logoblue} alt="logo" className="max-w-full h-auto" />
             </div>
@@ -265,28 +278,66 @@ export default function Home() {
             icsUrl="/ics/kr"
             ref={calRef}
             onDatesChange={(next) => {
-              // 1) 년/월 상태 업데이트 (기존 로직 유지)
               setYm((prev) =>
                 prev.year === next.year && prev.month === next.month
                   ? prev
                   : { year: next.year, month: next.month }
               );
 
-              // 2) 해당 년/월 기준으로 from, to 만들어서 스케줄 로드
-              const mm = String(next.month).padStart(2, "0");
+              const centerYear = next.year;
+              const centerMonth = next.month;
 
-              // next.month 의 말일 계산 (예: 11 → 30, 2 → 28/29)
-              const lastDay = new Date(next.year, next.month, 0).getDate();
-              const dd = String(lastDay).padStart(2, "0");
+              const first = new Date(centerYear, centerMonth - 1, 1); // 그 달 1일
+              const last = new Date(centerYear, centerMonth, 0); // 그 달 말일
 
-              const from = `${next.year}-${mm}-01`;
-              const to = `${next.year}-${mm}-${dd}`;
+              // 앞뒤로 일주일씩 확장
+              const fromDate = new Date(first);
+              fromDate.setDate(fromDate.getDate() - 7);
+              const toDate = new Date(last);
+              toDate.setDate(toDate.getDate() + 7);
+
+              const toYMD = (d) =>
+                `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+                  2,
+                  "0"
+                )}-${String(d.getDate()).padStart(2, "0")}`;
+
+              const from = toYMD(fromDate);
+              const to = toYMD(toDate);
 
               console.log("[Home] from/to =>", from, to);
               loadSchedules(from, to);
             }}
+            onSelectSchedule={(schedule) => {
+              setSelectedSchedule(schedule);
+              setDetailOpen(true); // 기본 설명 → DetailPopup으로 전환
+            }}
           />
         </div>
+        {selectedSchedule && (
+          <ResvPopup
+            isOpen={resvPopupOpen}
+            date={selectedSchedule.date} // YYYY-MM-DD
+            schedule={selectedSchedule}
+            onClose={() => {
+              // 🔥 예약 팝업 닫으면 기본 상태로 돌아가게
+              setResvPopupOpen(false);
+              setDetailOpen(false);
+              setSelectedSchedule(null);
+            }}
+            onConfirm={(d, payload, schedule) => {
+              // TODO: 실제 예약 확정 로직
+              console.log("예약 확정:", d);
+              console.log("예약 payload:", payload);
+              console.log("스케줄:", schedule);
+
+              // 성공 후 닫기 + 기본 상태로 복귀하고 싶으면:
+              setResvPopupOpen(false);
+              setDetailOpen(false);
+              setSelectedSchedule(null);
+            }}
+          />
+        )}
       </section>
       <Footer />
     </div>

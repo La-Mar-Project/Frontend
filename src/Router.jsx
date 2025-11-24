@@ -11,7 +11,6 @@ import Intro from "./pages/user/main/jjubullinto/Intro";
 import Ship from "./pages/user/main/jjubullinto/Ship";
 import MyLayout from "./pages/user/main/mypage/MyLayout";
 import Info from "./pages/user/main/mypage/Info";
-
 import LoginCallback from "./pages/user/main/login/LoginCallback";
 
 const router = createBrowserRouter([
@@ -28,7 +27,7 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "/oauth2/callback/google", // ✅ 여기 추가
+    path: "/oauth2/callback/google",
     element: <LoginCallback />,
   },
   {
