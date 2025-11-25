@@ -15,7 +15,7 @@ import { useResv } from "../../contexts/ResvContext";
 
 import DetailPopup from "../../components/user/home/popup/detailpopup/DetailPopup";
 import CalendarExplain from "../../assets/CalendarExplain.svg";
-import ResvPopup from "../../components/user/home/popup/ResvPopup";
+import Resv from "../../components/user/home/popup/Resv";
 
 export default function Home() {
   const [selectedSchedule, setSelectedSchedule] = useState(null); // 선택된 스케줄(날짜 등)
@@ -315,7 +315,7 @@ export default function Home() {
           />
         </div>
         {selectedSchedule && (
-          <ResvPopup
+          <Resv
             isOpen={resvPopupOpen}
             date={selectedSchedule.date} // YYYY-MM-DD
             schedule={selectedSchedule}

@@ -36,7 +36,7 @@ export default function ResvComplete({
         </div>
         <div className="px-[18px] flex flex-col justify-center">
           <div className="px-[310px]">
-            <div className="rounded-t-[10px] px-[30px] pt-[15px] pb-[11px] text-[18px] font-[600] flex justify-center bg-sky-mid-s">
+            <div className="rounded-t-[10px] px-[25px] pt-[15px] pb-[11px] text-[18px] font-[600] flex justify-center bg-sky-mid-s">
               내 예약정보 다시보기
             </div>
           </div>

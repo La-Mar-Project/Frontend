@@ -5,14 +5,9 @@ import ResvCoupon from "./coupon/ResvCoupon";
 import Terms from "../../../../assets/Terms.png";
 import ResvComplete from "./coupon/ResvComplete";
 import { useUser } from "../../../../contexts/UserContext";
+import { apiPost } from "../../../../utils/api";
 
-export default function ResvPopup({
-  isOpen,
-  date,
-  schedule,
-  onClose,
-  onConfirm,
-}) {
+export default function Resv({ isOpen, date, schedule, onClose, onConfirm }) {
   const { user } = useUser();
 
   const MAX_TOTAL_HEADCOUNT = 18;
@@ -104,12 +99,47 @@ export default function ResvPopup({
   };
 
   const handleConfirm = async () => {
-    if (!agreed) return; // 가드
+    if (!agreed) return; // 약관 동의 안 했으면 막기
 
-    // 부모에서 API 호출 등 예약 처리
-    await onConfirm?.(date, schedule);
+    if (!schedule?.publicId) {
+      alert("스케줄 정보가 없어 예약을 진행할 수 없습니다.");
+      return;
+    }
 
-    setPhase("done");
+    // 1) 서버로 보낼 데이터 구성 (Postman에 적어둔 그 JSON 그대로)
+    const payload = {
+      username: form.username || null,
+      nickname: form.nickname || null,
+      phone: form.phone || null,
+      headCount: form.headCount,
+      request: form.request || null,
+      couponId: form.couponId ?? null,
+    };
+
+    try {
+      const res = await apiPost(
+        `/schedules/${schedule.publicId}/reservation`,
+        payload
+      );
+
+      if (!res.ok) {
+        throw new Error(`예약 생성 실패 (${res.status})`);
+      }
+
+      const body = await res.json();
+      console.log("[ResvPopup] 예약 생성 응답:", body);
+
+      const created = body.data; // 백엔드가 data에 새 예약 정보를 넣어준다고 가정
+
+      // 3) 필요하면 부모(Home)에 "예약 성공했다" 알려주기
+      await onConfirm?.(created);
+
+      // 4) 같은 팝업 안에서 완료 화면으로 전환
+      setPhase("done");
+    } catch (e) {
+      console.error(e);
+      alert(e.message || "예약 처리 중 오류가 발생했습니다.");
+    }
   };
 
   return (
