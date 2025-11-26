@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../../../../contexts/UserContext";
-import { refreshAccessToken } from "../../../../utils/api";
+import { refreshAccessToken, apiGet } from "../../../../utils/api";
 
 const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER_URL;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -31,23 +31,10 @@ export default function LoginCallback() {
           return;
         }
 
-        if (!API_BASE_URL) {
-          console.warn(
-            "VITE_API_BASE_URL 이 설정되지 않아 프로필 조회를 건너뜁니다."
-          );
-        } else {
-          const profileRes = await fetch(
-            `${API_BASE_URL.replace(/\/+$/, "")}/users/me/profile`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
-
+        try {
+          const profileRes = await apiGet("/users/me/profile");
           console.log("[LoginCallback] profile status:", profileRes.status);
+
           if (profileRes.ok) {
             const profileBody = await profileRes.json();
             const data = profileBody.data ?? profileBody;
@@ -60,13 +47,15 @@ export default function LoginCallback() {
             };
 
             console.log("[LoginCallback] userFromApi:", userFromApi);
-            setUser(userFromApi);
+            setUser(userFromApi); // ✅ 여기서 UserContext 갱신
           } else {
             console.warn(
               "[LoginCallback] 프로필 조회 실패, Guest 유지:",
               profileRes.status
             );
           }
+        } catch (e) {
+          console.error("[LoginCallback] 프로필 조회 중 에러:", e);
         }
 
         navigate("/home", { replace: true });

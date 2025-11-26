@@ -1,7 +1,7 @@
 import Info from "./Info";
 import Logoblue from "../../../../assets/LogoBlue.svg";
-import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../../../contexts/UserContext";
 
 export default function MyLayout() {
@@ -9,6 +9,7 @@ export default function MyLayout() {
   const [menu, setMenu] = useState("info");
   const contentRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { user } = useUser();
 
@@ -16,8 +17,31 @@ export default function MyLayout() {
   const accessToken = localStorage.getItem("accessToken");
   const isGuest = !user || user.username === "Guest";
 
+  const sectionIds = {
+    info: "section-info",
+    coupon: "section-coupon",
+    history: "section-history",
+  };
+
+  const scrollToKey = useCallback((key) => {
+    setMenu(key);
+
+    const id = sectionIds[key];
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const headerOffset = 100;
+    const y = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+    window.scrollTo({
+      top: y,
+      behavior: "smooth",
+    });
+  }, []); // state setter는 안정적이라 deps 비워도 됨
+
+  const itemClass = (key) =>
+    menu === key ? `${base} font-semibold underline` : base;
   useEffect(() => {
-    // ❗ 진짜 비회원(토큰도 없고, user 도 Guest)만 막기
     if (!accessToken && isGuest) {
       alert(
         "마이페이지는 로그인 후 이용 가능합니다.\n로그인 또는 회원가입을 먼저 진행해 주세요."
@@ -26,37 +50,22 @@ export default function MyLayout() {
     }
   }, [accessToken, isGuest, navigate]);
 
+  useEffect(() => {
+    const scrollTo = location.state?.scrollTo;
+    if (scrollTo !== "coupon") return;
+
+    // 섹션 DOM 렌더링 이후에 스크롤하도록 다음 틱에 실행
+    const timer = setTimeout(() => {
+      scrollToKey("coupon");
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [location.state, scrollToKey]);
+
   // 리다이렉트 중에는 화면 렌더링 안 함
   if (!accessToken && isGuest) {
     return null;
   }
-
-  const sectionIds = {
-    info: "section-info",
-    coupon: "section-coupon",
-    history: "section-history",
-  };
-
-  const scrollToKey = (key) => {
-    setMenu(key);
-
-    const id = sectionIds[key];
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    // 화면 전체 스크롤 위치 계산
-    const headerOffset = 100; // 상단에 고정 헤더가 있으면 그 높이만큼 빼주면 됨
-    const y = el.getBoundingClientRect().top + window.scrollY - headerOffset;
-
-    window.scrollTo({
-      top: y,
-      behavior: "smooth",
-    });
-  };
-
-  const itemClass = (key) =>
-    menu === key ? `${base} font-semibold underline` : base;
-
   return (
     <div className="grid grid-cols-[1.5fr_5fr] grid-rows-[159px_1fr]">
       <div className="flex justify-center items-center border-r-2 border-b-2 text-center text-[30px] font-[700] px-14 py-14 text-logocolor">
