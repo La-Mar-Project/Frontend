@@ -86,6 +86,7 @@ export default function Home() {
 
     fetchCoupons();
   }, []);
+  //ㅇㅇ
 
   const earlyCouponId = useMemo(
     () =>
@@ -95,6 +96,7 @@ export default function Home() {
       })?.id ?? null,
     [coupons]
   );
+
   return (
     <div className="min-h-svh">
       <Header showLogo={false} actionsAlign="right" />
