@@ -6,6 +6,7 @@ import koLocale from "@fullcalendar/core/locales/ko";
 import icalendarPlugin from "@fullcalendar/icalendar";
 import ResvButton from "./ResvButton";
 import { useResv } from "../../../contexts/ResvContext";
+import { useUser } from "../../../contexts/UserContext";
 
 // 1) 헬퍼: 날짜를 YYYY-MM-DD로
 const toYMD = (d) =>
@@ -17,6 +18,9 @@ const Calendar = forwardRef(function Calendar(
   { onDatesChange, icsUrl, onSelectSchedule },
   ref
 ) {
+  const { user } = useUser();
+  const isGuest = !user || !user.username;
+
   const { getScheduleByDate } = useResv();
 
   const calendarRef = useRef(null);
@@ -27,6 +31,13 @@ const Calendar = forwardRef(function Calendar(
     const schedule = getScheduleByDate(dateStr);
     if (!schedule) return;
     if (schedule.remainingHeadCount <= 0) return;
+
+    // ✅ 비회원 + 선예약(EARLY) 스케줄이면 예약 팝업 안 띄우기
+    if (isGuest && schedule.type === "EARLY") {
+      // 선택: 안내 문구를 띄우고 싶으면
+      // alert("선예약은 로그인 후 이용 가능합니다.");
+      return;
+    }
 
     setSelected(dateStr); // 클릭된 날짜 하이라이트용
 

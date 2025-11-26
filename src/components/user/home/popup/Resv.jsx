@@ -36,7 +36,6 @@ export default function Resv({
     setAgreed(false);
     setPhase("form");
 
-    // 🔹 팝업 열릴 때 user 정보로 폼 채우기 + headCount 최대값 보정
     setForm((prev) => {
       const nextHeadCount = Math.min(
         prev.headCount || 1,
