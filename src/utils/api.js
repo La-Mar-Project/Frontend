@@ -35,6 +35,9 @@ export const refreshAccessToken = async () => {
       return null;
     }
 
+    const data = await res.json().catch(() => ({}));
+    console.log("[Auth] token refresh 응답 raw:", data);
+
     const headerToken = (() => {
       const auth =
         res.headers.get("authorization") || res.headers.get("Authorization");
@@ -43,19 +46,12 @@ export const refreshAccessToken = async () => {
       return parts.length === 2 ? parts[1] : auth;
     })();
 
-    let bodyToken = null;
-    try {
-      const data = await res.json();
-
-      bodyToken =
-        data?.data?.accessToken ??
-        data?.accessToken ??
-        data?.access_token ??
-        null;
-    } catch {
-      // body가 없거나 JSON 아니면 무시
-      bodyToken = null;
-    }
+    const bodyToken =
+      data?.data?.accessToken ??
+      data?.accessToken ??
+      data?.access_token ??
+      data?.token ?? // 혹시 token 이라는 이름이면 여기서 잡힘
+      null;
 
     const newToken = headerToken || bodyToken;
 
