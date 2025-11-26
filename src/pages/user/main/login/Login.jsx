@@ -23,7 +23,7 @@ export default function Login() {
   return (
     <div className="flex flex-col min-h-svh bg-white">
       <img src={LoginDesign1} alt="Login Design 1" />
-      <div className="flex justify-center items-center gap-[166px]">
+      <div className="flex justify-center items-center gap-[166px] z-10">
         <div className="w-[286px] h-[286px] flex justify-center items-center">
           <img src={Logo} />
         </div>
