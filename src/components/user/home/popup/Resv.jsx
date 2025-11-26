@@ -159,7 +159,7 @@ export default function Resv({
       onClose?.();
     } else {
       // 로그인 유저면 마이페이지로 보내면서 "쿠폰으로 스크롤해!" 라는 state 전달
-      navigate("main/mypage", {
+      navigate("/main/mypage", {
         state: { scrollTo: "coupon" },
         replace: false,
       });
