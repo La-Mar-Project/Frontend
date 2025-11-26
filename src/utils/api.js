@@ -50,7 +50,6 @@ export const refreshAccessToken = async () => {
       data?.data?.accessToken ??
       data?.accessToken ??
       data?.access_token ??
-      data?.token ?? // 혹시 token 이라는 이름이면 여기서 잡힘
       null;
 
     const newToken = headerToken || bodyToken;

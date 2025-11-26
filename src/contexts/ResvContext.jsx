@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
-import { apiGetPublic } from "../utils/api";
+import { apiGet } from "../utils/api";
 
 const ResvContext = createContext(null);
 
@@ -21,7 +21,7 @@ export function ResvProvider({ children }) {
       const endpoint = `/schedules/main?${params.toString()}`;
       console.log("[Resv] 요청 endpoint:", endpoint);
 
-      const res = await apiGetPublic(endpoint);
+      const res = await apiGet(endpoint);
 
       if (!res.ok) {
         let errorBody = null;
