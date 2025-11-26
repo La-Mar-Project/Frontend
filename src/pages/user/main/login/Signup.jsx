@@ -79,12 +79,13 @@ export default function Signup() {
     try {
       const signupBase = AUTH_SERVER.replace(/\/+$/, "");
       const signupUrl = `${signupBase}/signup`;
-      // 바디로 보낼 데이터 (백엔드가 RequestBody 로 받는 값들)
+      const cleanPhone = form.phonenumber.replace(/\D/g, "");
+
       const payload = {
         jwt,
         username: form.username,
         nickname: form.nickname,
-        phone: form.phonenumber,
+        phone: cleanPhone,
       };
 
       console.log("[Signup] 요청 URL:", signupUrl);
