@@ -88,7 +88,13 @@ const API_BASE_URL = import.meta.env.PROD
  */
 export const apiRequest = async (endpoint, options = {}) => {
   // raw 옵션 분리
-  const { raw, _retry, withAuth = true, ...fetchOptions } = options;
+  const {
+    raw,
+    _retry,
+    withAuth = true,
+    autoRefresh = true,
+    ...fetchOptions
+  } = options;
   const method = (fetchOptions.method || "GET").toUpperCase();
 
   // 엔드포인트가 전체 URL이 아닌 경우 기본 URL 추가
@@ -115,14 +121,11 @@ export const apiRequest = async (endpoint, options = {}) => {
     defaultHeaders["Content-Type"] = "application/json";
   }
 
-  // 토큰이 있으면 Authorization 헤더 추가 (localStorage에서 가져오기)
-  // api.js
   const token = withAuth ? localStorage.getItem("accessToken") : null;
   if (token) {
     defaultHeaders["Authorization"] = `Bearer ${token}`;
   }
 
-  // 옵션 병합
   const config = {
     ...fetchOptions,
     headers: {
@@ -146,7 +149,11 @@ export const apiRequest = async (endpoint, options = {}) => {
     });
     // 위쪽은 그대로 두고, 401 처리 부분만 이렇게:
 
-    if (response.status === 401 && !url.includes("/auth/token/refresh")) {
+    if (
+      autoRefresh &&
+      response.status === 401 &&
+      !url.includes("/auth/token/refresh")
+    ) {
       console.warn("[API] 401 감지 → token refresh 시도");
 
       const newToken = await refreshAccessToken();
@@ -206,6 +213,14 @@ export const apiGetPublic = async (endpoint, headers = {}) => {
     method: "GET",
     headers,
     withAuth: false,
+  });
+};
+
+export const apiGetNoRefresh = async (endpoint, headers = {}) => {
+  return apiRequest(endpoint, {
+    method: "GET",
+    headers,
+    autoRefresh: false,
   });
 };
 

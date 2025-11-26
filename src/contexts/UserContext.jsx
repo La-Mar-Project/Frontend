@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
-import { apiGet } from "../utils/api.js";
+import { apiGetNoRefresh } from "../utils/api.js";
 
 const FALLBACK_USER = {
   username: "Guest",
@@ -24,21 +24,27 @@ export function UserProvider({ children }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await apiGet("/users/me/profile");
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          // 토큰이 아예 없으면 그냥 Guest 상태 유지
+          setUser(null);
+          setError(null);
+          return;
+        }
+
+        // ✅ 여기서는 절대 refresh를 다시 부르면 안 되므로 apiGetNoRefresh 사용
+        const res = await apiGetNoRefresh("/users/me/profile");
         console.log("[User] API 응답 객체:", res);
 
         if (!res.ok) {
           throw new Error(`status=${res.status}`);
         }
 
-        // 2) JSON 파싱
         const body = await res.json();
         console.log("[User] API 응답 데이터:", body);
 
-        // 3) 응답 구조에 따라 data 꺼내기
         const data = body.data ?? body;
 
-        // 4) 우리 컴포넌트에서 쓸 모양으로 정리
         const userFromApi = {
           username: data.username,
           nickname: data.nickname,
@@ -50,7 +56,6 @@ export function UserProvider({ children }) {
         setError(null);
       } catch (e) {
         console.error("UserProvider fetchUser error:", e);
-        // 실패하면 그냥 게스트로 둠
         setUser(null);
         setError(null);
       }
@@ -58,6 +63,7 @@ export function UserProvider({ children }) {
 
     fetchUser();
   }, []);
+
   const safeUser = user ?? FALLBACK_USER;
 
   const value = {

@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "../../../../contexts/UserContext";
-import { apiGet } from "../../../../utils/api";
 
 const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function LoginCallback() {
   const navigate = useNavigate();
@@ -63,33 +63,51 @@ export default function LoginCallback() {
         localStorage.setItem("accessToken", accessToken);
 
         try {
-          const profileRes = await apiGet("/users/me/profile");
-          console.log("[LoginCallback] profile status:", profileRes.status);
-
-          if (profileRes.ok) {
-            const profileBody = await profileRes.json();
-            const data = profileBody.data ?? profileBody;
-
-            const userFromApi = {
-              username: data.username,
-              nickname: data.nickname,
-              grade: data.grade,
-              phone: data.phone,
-            };
-
-            console.log("[LoginCallback] userFromApi:", userFromApi);
-            setUser(userFromApi);
-          } else {
+          if (!API_BASE_URL) {
             console.warn(
-              "[LoginCallback] 프로필 조회 실패, 그대로 Guest 유지:",
-              profileRes.status
+              "VITE_API_BASE_URL 이 설정되어 있지 않아 프로필 호출을 생략합니다."
             );
+          } else {
+            const profileRes = await fetch(
+              `${API_BASE_URL.replace(/\/+$/, "")}/users/me/profile`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${accessToken}`,
+                },
+                // 쿠키가 필요하면 아래 주석 해제
+                // credentials: "include",
+              }
+            );
+
+            console.log("[LoginCallback] userFromApi:", profileRes.status);
+
+            if (profileRes.ok) {
+              const profileBody = await profileRes.json();
+              const data = profileBody.data ?? profileBody;
+
+              const userFromApi = {
+                username: data.username,
+                nickname: data.nickname,
+                grade: data.grade,
+                phone: data.phone,
+              };
+
+              console.log("[LoginCallback] userFromApi:", userFromApi);
+              setUser(userFromApi);
+            } else {
+              console.warn(
+                "[LoginCallback] 프로필 조회 실패, 그대로 Guest 유지:",
+                profileRes.status
+              );
+            }
           }
         } catch (e) {
           console.error("[LoginCallback] 프로필 조회 중 에러:", e);
         }
 
-        // UserProvider 가 /users/me/profile 을 다시 불러와서 user 채움
+        // 5) 홈으로 이동
         navigate("/home", { replace: true });
       } catch (err) {
         console.error("LoginCallback error:", err);

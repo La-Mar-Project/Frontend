@@ -1,27 +1,26 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
-import { apiGet } from "../utils/api";
+import { apiGetPublic } from "../utils/api";
 
 const ResvContext = createContext(null);
 
 export function ResvProvider({ children }) {
   const [schedules, setSchedules] = useState([]);
 
-  // from / to: "2025-11-01" 이런 문자열
   const loadSchedules = async (from, to) => {
     try {
       const fromDate = new Date(`${from}T00:00:00`);
       const toDate = new Date(`${to}T23:59:59`);
 
       const params = new URLSearchParams({
-        from: fromDate.toISOString().slice(0, 19), // "2025-10-24T00:00:00"
+        from: fromDate.toISOString().slice(0, 19),
         to: toDate.toISOString().slice(0, 19),
       });
 
       const endpoint = `/schedules/main?${params.toString()}`;
       console.log("[Resv] 요청 endpoint:", endpoint);
 
-      const res = await apiGet(endpoint);
+      const res = await apiGetPublic(endpoint);
 
       if (!res.ok) {
         let errorBody = null;
@@ -42,12 +41,9 @@ export function ResvProvider({ children }) {
 
       let rawList = [];
 
-      // 1) 지금 스펙: 응답이 바로 배열인 경우
       if (Array.isArray(body)) {
         rawList = body;
-      }
-      // 2) 혹시 예전처럼 { data: { schedules: [...] } } 구조로 올 수도 있으니 대비
-      else if (Array.isArray(body?.data?.schedules)) {
+      } else if (Array.isArray(body?.data?.schedules)) {
         rawList = body.data.schedules;
       }
 
@@ -55,7 +51,6 @@ export function ResvProvider({ children }) {
 
       const list = rawList.map((s) => ({
         ...s,
-        // 옛날에는 schedulePublicId였고, 지금은 id만 있을 수 있으니까 둘 다 고려
         publicId: s.schedulePublicId ?? s.id,
       }));
 
@@ -75,10 +70,8 @@ export function ResvProvider({ children }) {
     }
 
     return (
-      schedules.find(
-        // departure: "2025-11-22T06:00:00" 이런 형태라고 가정
-        (s) => (s.departure || "").slice(0, 10) === dateStr
-      ) ?? null
+      schedules.find((s) => (s.departure || "").slice(0, 10) === dateStr) ??
+      null
     );
   };
 
