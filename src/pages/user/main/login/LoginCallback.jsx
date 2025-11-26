@@ -61,6 +61,7 @@ export default function LoginCallback() {
         }
 
         localStorage.setItem("accessToken", accessToken);
+
         try {
           const profileRes = await apiGet("/users/me/profile");
           console.log("[LoginCallback] profile status:", profileRes.status);

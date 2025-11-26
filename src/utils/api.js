@@ -35,21 +35,44 @@ export const refreshAccessToken = async () => {
       return null;
     }
 
-    const data = await res.json().catch(() => ({}));
+    const headerToken = (() => {
+      const auth =
+        res.headers.get("authorization") || res.headers.get("Authorization");
+      if (!auth) return null;
+      const parts = auth.split(" ");
+      return parts.length === 2 ? parts[1] : auth;
+    })();
 
-    const newToken =
-      data?.data?.accessToken ??
-      data?.accessToken ??
-      data?.access_token ??
-      null;
+    let bodyToken = null;
+    try {
+      const data = await res.json();
+
+      bodyToken =
+        data?.data?.accessToken ??
+        data?.accessToken ??
+        data?.access_token ??
+        null;
+    } catch {
+      // body가 없거나 JSON 아니면 무시
+      bodyToken = null;
+    }
+
+    const newToken = headerToken || bodyToken;
 
     if (!newToken) {
-      console.warn("token refresh 응답에 accessToken 없음:", data);
+      console.warn(
+        "token refresh 응답 어디에도 accessToken 없음 (헤더/바디 모두 없음)"
+      );
       return null;
     }
 
-    // 로컬에 저장
+    // 3) 로컬에 저장
     localStorage.setItem("accessToken", newToken);
+    console.log(
+      "[Auth] 새 accessToken 저장 완료:",
+      newToken.slice(0, 20),
+      "..."
+    );
     return newToken;
   } catch (e) {
     console.error("token refresh 중 에러:", e);
