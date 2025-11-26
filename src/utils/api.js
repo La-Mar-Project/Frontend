@@ -2,7 +2,60 @@
  * API 유틸리티 함수
  * 백엔드 API 호출을 위한 공통 함수들
  */
+// === 기존 코드 상단 근처에 추가 ===
 
+// 메인 API 말고, 인증 서버용
+const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER_URL || "";
+const IS_PROD = import.meta.env.PROD;
+
+/**
+ * refresh 토큰으로 accessToken 재발급 시도
+ * 성공하면 새 accessToken 문자열을 리턴, 실패하면 null 리턴
+ */
+export const refreshAccessToken = async () => {
+  try {
+    let refreshUrl;
+    if (IS_PROD && AUTH_SERVER) {
+      const base = AUTH_SERVER.replace(/\/+$/, "");
+      refreshUrl = `${base}/auth/token/refresh`; // prod
+    } else {
+      refreshUrl = "/auth/token/refresh"; // dev
+    }
+    console.log("[Auth] token refresh 요청:", refreshUrl);
+
+    const res = await fetch(refreshUrl, {
+      method: "POST",
+      credentials: "include", // refresh 쿠키 보내야 함
+    });
+
+    console.log("[Auth] token refresh status:", res.status);
+
+    if (!res.ok) {
+      console.warn("token refresh 실패:", res.status);
+      return null;
+    }
+
+    const data = await res.json().catch(() => ({}));
+
+    const newToken =
+      data?.data?.accessToken ??
+      data?.accessToken ??
+      data?.access_token ??
+      null;
+
+    if (!newToken) {
+      console.warn("token refresh 응답에 accessToken 없음:", data);
+      return null;
+    }
+
+    // 로컬에 저장
+    localStorage.setItem("accessToken", newToken);
+    return newToken;
+  } catch (e) {
+    console.error("token refresh 중 에러:", e);
+    return null;
+  }
+};
 // 환경 변수에서 API 기본 URL 가져오기
 const API_BASE_URL = import.meta.env.PROD
   ? import.meta.env.VITE_API_BASE_URL || ""
@@ -17,7 +70,7 @@ const API_BASE_URL = import.meta.env.PROD
  */
 export const apiRequest = async (endpoint, options = {}) => {
   // raw 옵션 분리
-  const { raw, ...fetchOptions } = options;
+  const { raw, _retry, ...fetchOptions } = options;
 
   // 엔드포인트가 전체 URL이 아닌 경우 기본 URL 추가
   const url = endpoint.startsWith("http")
@@ -62,7 +115,7 @@ export const apiRequest = async (endpoint, options = {}) => {
     console.log("[API Request] 요청 설정:", config);
     console.log("[API Request] API_BASE_URL:", API_BASE_URL);
 
-    const response = await fetch(url, config);
+    let response = await fetch(url, config);
     console.log("[API Response]", {
       status: response.status,
       statusText: response.statusText,
@@ -70,7 +123,28 @@ export const apiRequest = async (endpoint, options = {}) => {
       url: response.url,
       headers: Object.fromEntries(response.headers.entries()),
     });
+    // 위쪽은 그대로 두고, 401 처리 부분만 이렇게:
 
+    if (response.status === 401 && !url.includes("/auth/token/refresh")) {
+      console.warn("[API] 401 감지 → token refresh 시도");
+
+      const newToken = await refreshAccessToken();
+
+      if (newToken) {
+        const retryConfig = {
+          ...config,
+          headers: {
+            ...config.headers,
+            Authorization: `Bearer ${newToken}`,
+          },
+        };
+
+        console.log("[API] 새 토큰으로 재시도:", url);
+        response = await fetch(url, retryConfig);
+      } else {
+        console.warn("[API] token refresh 실패 → 원래 401 그대로 반환");
+      }
+    }
     // 응답 Content-Type 확인
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {

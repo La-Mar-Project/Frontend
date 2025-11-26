@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../../../contexts/UserContext";
+import { refreshAccessToken } from "../../../../utils/api";
 
 const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER_URL || "";
 
@@ -97,7 +98,10 @@ export default function Signup() {
         },
         body: JSON.stringify(payload), // JSON.stringify 말고 이걸 그대로 넣기
       });
-
+      console.log(
+        "[Signup] 응답 헤더 전체:",
+        Object.fromEntries(signupRes.headers.entries())
+      );
       if (!signupRes.ok) {
         const text = await signupRes.text();
         console.error("회원가입 API 실패:", signupRes.status, text);
@@ -116,7 +120,17 @@ export default function Signup() {
         ...profile,
         jwt,
       });
+      try {
+        const newToken = await refreshAccessToken();
 
+        if (newToken) {
+          console.log("[Signup] token refresh 성공, accessToken 저장됨");
+        } else {
+          console.warn("[Signup] token refresh 실패 (accessToken 없음)");
+        }
+      } catch (e) {
+        console.warn("[Signup] token refresh 중 오류(그래도 진행):", e);
+      }
       // 1) 헤더에서 access token 시도
       const headerAccessToken =
         signupRes.headers.get("access_token") || // access_token 헤더
