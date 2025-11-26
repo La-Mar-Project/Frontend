@@ -21,12 +21,20 @@ import CalendarExplain from "../../assets/CalendarExplain.svg";
 import Resv from "../../components/user/home/popup/Resv";
 
 export default function Home() {
+  const { user, reloadUser } = useUser();
   const [selectedSchedule, setSelectedSchedule] = useState(null); // 선택된 스케줄(날짜 등)
   const [detailOpen, setDetailOpen] = useState(false); // 오른쪽 DetailPopup on/off
   const [resvPopupOpen, setResvPopupOpen] = useState(false); // 예약창(ResvPopup) on/off
 
-  const { user } = useUser();
   const { loadSchedules } = useResv();
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      console.log("[Home] reloadUser 호출");
+      reloadUser();
+    }
+  }, [reloadUser]);
 
   const navigate = useNavigate();
   const calRef = useRef(null);
