@@ -22,7 +22,7 @@ export default function MyLayout() {
       alert(
         "마이페이지는 로그인 후 이용 가능합니다.\n로그인 또는 회원가입을 먼저 진행해 주세요."
       );
-      navigate("/home", { replace: true });
+      navigate("/", { replace: true });
     }
   }, [accessToken, isGuest, navigate]);
 
