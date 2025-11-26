@@ -25,7 +25,7 @@ export default function ResvButton({
   // ✅ 5) 버튼에 보여줄 텍스트
   const displayText = (() => {
     // 비회원 + 선예약인 경우
-    if (isEarlyType && !hasAccessToken) return "로그인 필요";
+    if (isEarlyType && !hasAccessToken) return "선예약하기";
 
     // 그 외 비활성인 경우(예약없음/예약마감 등)
     if (isDisabled) return status;
@@ -49,7 +49,7 @@ export default function ResvButton({
       disabled={isDisabled}
       onClick={handleClick}
       className={
-        "shrink-0 rounded-[5px] text-white w-[84px] h-[59px] flex flex-col justify-center items-center py-[10px] px-[7px] " +
+        "shrink-0 rounded-[5px] text-white w-[84px] h-[59px] flex flex-col justify-center items-center py-[10px] px-[5px] " +
         bgClass
       }
     >
