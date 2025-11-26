@@ -41,6 +41,7 @@ export default function MyLayout() {
 
   const itemClass = (key) =>
     menu === key ? `${base} font-semibold underline` : base;
+
   useEffect(() => {
     if (!accessToken && isGuest) {
       alert(
@@ -52,11 +53,11 @@ export default function MyLayout() {
 
   useEffect(() => {
     const scrollTo = location.state?.scrollTo;
-    if (scrollTo !== "coupon") return;
+    if (scrollTo !== "history") return;
 
     // 섹션 DOM 렌더링 이후에 스크롤하도록 다음 틱에 실행
     const timer = setTimeout(() => {
-      scrollToKey("coupon");
+      scrollToKey("history");
     }, 0);
 
     return () => clearTimeout(timer);
