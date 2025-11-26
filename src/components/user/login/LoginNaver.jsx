@@ -1,9 +1,9 @@
-import imgGoogle from "../../../assets/Google.svg";
+import Naver from "../../../assets/Naver.svg";
 
 const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER_URL;
 const IS_PROD = import.meta.env.PROD;
 
-export default function LoginGoogle({ disabled }) {
+export default function LoginNaver({ disabled }) {
   const handleClick = () => {
     if (disabled) return;
 
@@ -17,9 +17,9 @@ export default function LoginGoogle({ disabled }) {
       }
 
       const base = AUTH_SERVER.replace(/\/+$/, "");
-      loginUrl = `${base}/auth/google/start`;
+      loginUrl = `${base}/auth/naver/start`;
     } else {
-      loginUrl = "/auth/google/start";
+      loginUrl = "/auth/naver/start";
     }
 
     console.log("Redirect to:", loginUrl);
@@ -30,13 +30,13 @@ export default function LoginGoogle({ disabled }) {
     <button
       onClick={handleClick}
       disabled={disabled}
-      className="flex justify-between cursor-pointer bg-[#FFFFFF] border border-gray-mid-b text-[18px] py-[10px] pl-[20px] pr-[80px] rounded-[10px] items-center w-auto font-[500]"
+      className="flex justify-between cursor-pointer bg-[#03C75A] text-[18px] text-white py-[10px] pl-[28px] pr-[111px] rounded-[10px] items-center w-auto font-[500]"
       style={{ opacity: disabled ? 0.6 : 1 }}
     >
-      <div className="w-[30px]">
-        <img src={imgGoogle} alt="Google" />
+      <div className="w-[35px]">
+        <img src={Naver} alt="Naver" />
       </div>
-      <p>Google 계정으로 로그인</p>
+      <p>네이버로 로그인</p>
     </button>
   );
 }

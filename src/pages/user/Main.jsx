@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import Footer from "../../components/user/Footer";
 import Header from "../../components/user/Header";
+import Advertisement from "../../assets/Advertisement.svg";
 
 const base =
   "px-[25px] py-5 text-[22px] font-regular border-t-2 flex items-center justify-center text-center";
@@ -16,7 +17,9 @@ export default function Main() {
     <div className="flex flex-col min-h-svh">
       <Header />
       <section className="grid-rows-[auto_159px_1fr] text-title grid grid-cols-[1.5fr_repeat(5,1fr)] divide-x-2 divide-y-2 divide-linecolor flex-1">
-        <div className="bg-sky-mid-s">광고배너</div>
+        <div className="bg-sky-mid-s">
+          <img src={Advertisement} className="h-full" />
+        </div>
 
         <NavLink to="notice" className={navClass}>
           중요공지 확인하기

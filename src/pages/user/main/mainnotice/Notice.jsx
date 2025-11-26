@@ -36,7 +36,7 @@ export default function Notice() {
           num="4"
           title="쭈갑예약 대기 관련"
           text={
-            <p className="shrink-0">
+            <div className="shrink-0">
               <span className="font-[500]">
                 예약 대기는 받지 않고 있습니다.
               </span>{" "}
@@ -46,7 +46,7 @@ export default function Notice() {
               <br />
               * 취소건 알리미방 가기 <br />
               010-5897-0560 으로 문자 주시면 링크와 비밀번호 안내드립니다!
-            </p>
+            </div>
           }
         />{" "}
         <Maincompoenent

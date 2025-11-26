@@ -1,9 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import { apiGet } from "../utils/api.js";
+
 const FALLBACK_USER = {
-  username: "User",
-  nickname: "User",
+  username: "Guest",
+  nickname: "Guest",
   grade: "",
   phone: "",
 };
@@ -24,7 +25,6 @@ export function UserProvider({ children }) {
     const fetchUser = async () => {
       try {
         const res = await apiGet("/users/me/profile");
-
         console.log("[User] API 응답 객체:", res);
 
         if (!res.ok) {
@@ -50,18 +50,19 @@ export function UserProvider({ children }) {
         setError(null);
       } catch (e) {
         console.error("UserProvider fetchUser error:", e);
-        setError("유저 정보를 불러오지 못했습니다.");
+        // 실패하면 그냥 게스트로 둠
+        setUser(null);
+        setError(null);
       }
     };
 
     fetchUser();
   }, []);
-
   const safeUser = user ?? FALLBACK_USER;
 
   const value = {
     user: safeUser,
-    setUser, // 나중에 닉네임 수정에서 쓸 수 있게 열어둠
+    setUser, // Signup에서 setUser 호출하면 여기 user가 바로 바뀜
     error,
   };
 

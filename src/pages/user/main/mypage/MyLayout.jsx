@@ -1,11 +1,35 @@
-import Info from "./Info"; // 경로는 프로젝트 구조에 맞게 수정
+import Info from "./Info";
 import Logoblue from "../../../../assets/LogoBlue.svg";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "../../../../contexts/UserContext";
 
 export default function MyLayout() {
   const base = "hover:underline hover:font-semibold cursor-pointer";
   const [menu, setMenu] = useState("info");
   const contentRef = useRef(null);
+  const navigate = useNavigate();
+
+  const { user } = useUser();
+
+  // 로컬스토리지 토큰 + 컨텍스트 유저로 상태 판단
+  const accessToken = localStorage.getItem("accessToken");
+  const isGuest = !user || user.username === "Guest";
+
+  useEffect(() => {
+    // ❗ 진짜 비회원(토큰도 없고, user 도 Guest)만 막기
+    if (!accessToken && isGuest) {
+      alert(
+        "마이페이지는 로그인 후 이용 가능합니다.\n로그인 또는 회원가입을 먼저 진행해 주세요."
+      );
+      navigate("/home", { replace: true });
+    }
+  }, [accessToken, isGuest, navigate]);
+
+  // 리다이렉트 중에는 화면 렌더링 안 함
+  if (!accessToken && isGuest) {
+    return null;
+  }
 
   const sectionIds = {
     info: "section-info",

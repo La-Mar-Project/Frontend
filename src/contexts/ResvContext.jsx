@@ -40,14 +40,24 @@ export function ResvProvider({ children }) {
       const body = await res.json();
       console.log("[Resv] 메인 스케줄 응답 raw:", body);
 
-      const rawList = Array.isArray(body?.data?.schedules)
-        ? body.data.schedules
-        : [];
+      // 🔥 여기부터 백엔드 새 스펙에 맞게 수정
+      let rawList = [];
+
+      // 1) 지금 스펙: 응답이 바로 배열인 경우
+      if (Array.isArray(body)) {
+        rawList = body;
+      }
+      // 2) 혹시 예전처럼 { data: { schedules: [...] } } 구조로 올 수도 있으니 대비
+      else if (Array.isArray(body?.data?.schedules)) {
+        rawList = body.data.schedules;
+      }
 
       console.log("[Resv] raw 첫 번째 스케줄:", rawList[0]);
+
       const list = rawList.map((s) => ({
         ...s,
-        publicId: s.schedulePublicId,
+        // 옛날에는 schedulePublicId였고, 지금은 id만 있을 수 있으니까 둘 다 고려
+        publicId: s.schedulePublicId ?? s.id,
       }));
 
       console.log("[Resv] 최종 스케줄 리스트 (publicId 포함):", list);

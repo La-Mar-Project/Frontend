@@ -2,9 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../../../../contexts/UserContext";
 
-const AUTH_BASE = import.meta.env.VITE_AUTH_SERVER_URL
-  ? import.meta.env.VITE_AUTH_SERVER_URL
-  : "";
+const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER_URL || "";
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -76,28 +74,39 @@ export default function Signup() {
     }
 
     setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append("jwt", jwt);
-      formData.append("nickname", form.nickname);
-      formData.append("phone", form.phonenumber);
-      formData.append("username", form.username);
 
-      const base = AUTH_BASE.replace(/\/+$/, "");
-      const res = await fetch(`${base}/signup`, {
-        method: "POST", // 백엔드가 POST라고 확정된 경우
-        body: formData,
+    try {
+      const signupBase = AUTH_SERVER.replace(/\/+$/, "");
+      const signupUrl = `${signupBase}/signup`;
+      // 바디로 보낼 데이터 (백엔드가 RequestBody 로 받는 값들)
+      const payload = {
+        jwt,
+        username: form.username,
+        nickname: form.nickname,
+        phone: form.phonenumber,
+      };
+
+      console.log("[Signup] 요청 URL:", signupUrl);
+      console.log("[Signup] payload (object):", payload);
+
+      const signupRes = await fetch(signupUrl, {
+        method: "POST",
+        credentials: "include", // refresh 쿠키 등 필요하면 유지
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload), // JSON.stringify 말고 이걸 그대로 넣기
       });
 
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("회원가입 API 실패:", res.status, text);
+      if (!signupRes.ok) {
+        const text = await signupRes.text();
+        console.error("회원가입 API 실패:", signupRes.status, text);
         throw new Error("회원가입 실패");
       }
 
-      const body = await res.json();
+      const responsebody = await signupRes.json().catch(() => ({}));
 
-      const profile = body.data ?? {
+      const profile = responsebody.data ?? {
         username: form.username,
         nickname: form.nickname,
         phone: form.phonenumber,
@@ -108,16 +117,32 @@ export default function Signup() {
         jwt,
       });
 
-      const accessToken = body.accessToken ?? body.access_token;
+      // 1) 헤더에서 access token 시도
+      const headerAccessToken =
+        signupRes.headers.get("access_token") || // access_token 헤더
+        signupRes.headers.get("Access-Token") || // Access-Token 형태
+        (() => {
+          const auth = signupRes.headers.get("authorization"); // Authorization: Bearer xxx
+          if (!auth) return null;
+          const parts = auth.split(" ");
+          return parts.length === 2 ? parts[1] : auth;
+        })();
 
-      const refreshToken =
-        res.headers.get("refresh_token") ?? res.headers.get("Refresh-Token");
+      // 2) 바디에서도 혹시 오면 같이 고려
+      const signupAccessToken =
+        headerAccessToken ||
+        responsebody?.data?.accessToken ||
+        responsebody?.accessToken ||
+        responsebody?.access_token ||
+        null;
 
-      if (accessToken) {
-        localStorage.setItem("accessToken", accessToken);
-      }
-      if (refreshToken) {
-        localStorage.setItem("refreshToken", refreshToken);
+      if (signupAccessToken) {
+        console.log(
+          "[Signup] accessToken 확보:",
+          signupAccessToken.slice(0, 20),
+          "..."
+        );
+        localStorage.setItem("accessToken", signupAccessToken);
       }
 
       setUser((prev) => ({

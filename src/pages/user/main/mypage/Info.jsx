@@ -146,13 +146,6 @@ export default function Info() {
         <div className="pl-[115px]">
           <div className="rounded-[10px] px-[30px] py-[25px] grid grid-cols-6 justify-center items-center gap-[12px] bg-sky-mid-s">
             <MyCoupon />
-            <MyCoupon />
-            <MyCoupon />
-            <MyCoupon />
-            <MyCoupon />
-            <MyCoupon />
-            <MyCoupon />
-            <MyCoupon />
           </div>
         </div>
       </section>

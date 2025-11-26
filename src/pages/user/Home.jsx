@@ -5,13 +5,16 @@ import Yearleft from "../../assets/Yearleft.svg";
 import Yearright from "../../assets/Yearright.svg";
 import Monthleft from "../../assets/Monthleft.svg";
 import Monthright from "../../assets/Monthright.svg";
+import Advertisement from "../../assets/Advertisement.svg";
+
 import Toggle from "../../assets/Toggle.svg";
 import Footer from "../../components/user/Footer";
 import Calendar from "../../components/user/home/Calendar";
 import { useNavigate } from "react-router-dom";
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { useUser } from "../../contexts/UserContext";
 import { useResv } from "../../contexts/ResvContext";
+import { apiGet } from "../../utils/api";
 
 import DetailPopup from "../../components/user/home/popup/detailpopup/DetailPopup";
 import CalendarExplain from "../../assets/CalendarExplain.svg";
@@ -56,6 +59,42 @@ export default function Home() {
   const Textstyle =
     "hover:bg-sky-light-f hover:text-logocolor cursor-pointer text-[30px] text-logocolor p-3 border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto";
 
+  const [coupons, setCoupons] = useState([]);
+
+  // 로그인 되어 있으면 쿠폰 목록 1번 불러오기
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      setCoupons([]);
+      return;
+    }
+
+    const fetchCoupons = async () => {
+      try {
+        const res = await apiGet("/users/me/coupons"); // 백엔드 쿠폰 조회 API 경로
+        if (!res.ok) throw new Error(`status=${res.status}`);
+        const body = await res.json();
+
+        // 응답 형태에 따라 data에서 꺼내거나 바로 사용
+        const list = Array.isArray(body.data) ? body.data : body;
+        setCoupons(list);
+      } catch (e) {
+        console.error("[Home] 쿠폰 조회 실패:", e);
+        setCoupons([]);
+      }
+    };
+
+    fetchCoupons();
+  }, []);
+
+  const earlyCouponId = useMemo(
+    () =>
+      coupons.find((c) => {
+        const t = (c.type ?? c.couponType ?? "").toUpperCase();
+        return t === "EARLY";
+      })?.id ?? null,
+    [coupons]
+  );
   return (
     <div className="min-h-svh">
       <Header showLogo={false} actionsAlign="right" />
@@ -70,7 +109,7 @@ export default function Home() {
               안녕하세요
               <div className="flex items-end">
                 <p className="text-[28px] font-semibold">
-                  {user.username ?? "User"}
+                  {user.username ?? "Guest"}
                 </p>
                 님!
               </div>
@@ -225,7 +264,9 @@ export default function Home() {
         </div>
 
         <div className="grid grid-rows-[69px_1fr_auto] border-r-2 border-linecolor h-full overflow-hidden">
-          <div className="bg-sky-light-f h-[69px]">광고배너</div>
+          <div className="bg-sky-light-f h-[69px]">
+            <img src={Advertisement} />
+          </div>
           <div className="flex flex-col justify-between h-full pt-[120px]">
             {detailOpen && selectedSchedule ? (
               <DetailPopup
@@ -319,6 +360,7 @@ export default function Home() {
             isOpen={resvPopupOpen}
             date={selectedSchedule.date} // YYYY-MM-DD
             schedule={selectedSchedule}
+            defaultCouponId={earlyCouponId}
             onClose={() => {
               // 🔥 예약 팝업 닫으면 기본 상태로 돌아가게
               setResvPopupOpen(false);

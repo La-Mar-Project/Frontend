@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER_URL;
-const IS_PROD = import.meta.env.PROD;
 
 export default function LoginCallback() {
   const navigate = useNavigate();
@@ -10,82 +9,58 @@ export default function LoginCallback() {
 
   useEffect(() => {
     const run = async () => {
-      const params = new URLSearchParams(location.search);
-      const code = params.get("code");
-
-      if (!code) {
-        console.error("Google OAuth code 없음");
-        navigate("/", { replace: true });
-        return;
-      }
-
       try {
-        let callbackUrl = "";
-        if (IS_PROD) {
-          const base = AUTH_SERVER.replace(/\/+$/, "");
-          callbackUrl = `${base}/auth/google/callback?code=${encodeURIComponent(
-            code
-          )}`;
-        } else {
-          callbackUrl = `/auth/google/callback?code=${encodeURIComponent(
-            code
-          )}`;
-        }
-
-        const res = await fetch(callbackUrl, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        console.log("callback code:", code, "url:", callbackUrl);
-        console.log("callback status:", res.status);
-        const text = await res.clone().text();
-        console.log("raw response text:", text);
-
-        // 404 = 회원가입 안 된 유저
-        if (res.status === 404) {
-          let body = null;
-          try {
-            body = await res.json();
-          } catch {
-            body = null;
-          }
-
-          const provider = body?.provider;
-          const sub = body?.sub;
-
-          console.log("신규 소셜 유저:", body);
-
-          navigate("/signup", {
+        // 혹시 jwt 가 여기로 들어올 일 있으면 바로 회원가입으로 보내기 (방어코드)
+        const params = new URLSearchParams(location.search);
+        const jwt = params.get("jwt");
+        if (jwt) {
+          navigate(`/signup?jwt=${encodeURIComponent(jwt)}`, {
             replace: true,
-            state: { provider, sub },
           });
           return;
         }
 
-        // 그 외 에러
-        if (!res.ok) {
-          console.error("google callback error:", res.status);
+        if (!AUTH_SERVER) {
+          console.error("VITE_AUTH_SERVER_URL 이 설정되어 있지 않습니다.");
           navigate("/", { replace: true });
           return;
         }
 
-        const data = await res.json();
-        console.log("기존 회원 callback data:", data);
+        const base = AUTH_SERVER.replace(/\/+$/, "");
+        const refreshUrl = `${base}/auth/token/refresh`;
 
-        const accessToken = data.access_token;
-        const refreshToken = res.headers.get("refresh_token");
+        const res = await fetch(refreshUrl, {
+          method: "POST",
+          credentials: "include", // 쿠키 꼭 같이 보내기
+        });
 
-        if (accessToken) {
-          localStorage.setItem("accessToken", accessToken);
+        console.log("[LoginCallback] refresh status:", res.status);
+
+        if (!res.ok) {
+          console.error("token refresh 실패:", res.status);
+          navigate("/", { replace: true });
+          return;
         }
-        if (refreshToken) {
-          localStorage.setItem("refreshToken", refreshToken);
+
+        const body = await res.json();
+        console.log("[LoginCallback] refresh 응답:", body);
+
+        // 백엔드 응답 형태에 따라 유연하게 파싱
+        const accessToken =
+          body.data?.accessToken ??
+          body.accessToken ??
+          body.access_token ??
+          null;
+
+        if (!accessToken) {
+          console.error("refresh 응답에 accessToken 없음");
+          navigate("/", { replace: true });
+          return;
         }
 
-        // 필요하면 여기서 사용자 정보도 Context에 세팅 가능
-        // setUser(data.profile) 같은 거
+        localStorage.setItem("accessToken", accessToken);
 
+        // UserProvider 가 /users/me/profile 을 다시 불러와서 user 채움
         navigate("/home", { replace: true });
       } catch (err) {
         console.error("LoginCallback error:", err);

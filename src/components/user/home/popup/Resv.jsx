@@ -7,7 +7,14 @@ import ResvComplete from "./coupon/ResvComplete";
 import { useUser } from "../../../../contexts/UserContext";
 import { apiPost } from "../../../../utils/api";
 
-export default function Resv({ isOpen, date, schedule, onClose, onConfirm }) {
+export default function Resv({
+  isOpen,
+  date,
+  schedule,
+  onClose,
+  onConfirm,
+  defaultCouponId,
+}) {
   const { user } = useUser();
 
   const MAX_TOTAL_HEADCOUNT = 18;
@@ -42,9 +49,10 @@ export default function Resv({ isOpen, date, schedule, onClose, onConfirm }) {
         nickname: user?.nickname ?? prev.nickname ?? "",
         phone: user?.phone ?? prev.phone ?? "",
         headCount: nextHeadCount,
+        couponId: defaultCouponId ?? prev.couponId ?? null,
       };
     });
-  }, [isOpen, user, maxSelectableHeadCount]);
+  }, [isOpen, user, maxSelectableHeadCount, defaultCouponId]);
 
   const formattedDepartLabel = (() => {
     if (!date) return "-";
@@ -188,13 +196,11 @@ export default function Resv({ isOpen, date, schedule, onClose, onConfirm }) {
                 </div>
               </section>
               {isEarly && (
-                <section className=" flex flex-col gap-[25px]">
+                <section className="flex gap-[25px]">
                   <p className="pl-[75px] text-[22px] font-semibold">쿠폰</p>
-                  <div className="flex flex-col gap-[9px] px-[110px]">
-                    <ResvCoupon />
-                    <div className="flex gap-[7px] rounded-[10px] w-full px-[15px] py-[10px] border border-[#828BC0]">
-                      시즌3 선예약 쿠폰 <p className="text-5 font-[500]">1</p>매
-                      사용
+                  <div className="flex items-center px-[60px]">
+                    <div className="flex w-full">
+                      시즌3 선예약 쿠폰 1매 사용
                     </div>
                   </div>
                 </section>
