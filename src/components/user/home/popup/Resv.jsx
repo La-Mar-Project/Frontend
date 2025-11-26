@@ -6,6 +6,7 @@ import Terms from "../../../../assets/Terms.png";
 import ResvComplete from "./coupon/ResvComplete";
 import { useUser } from "../../../../contexts/UserContext";
 import { apiPost } from "../../../../utils/api";
+import { useNavigate } from "react-router-dom";
 
 export default function Resv({
   isOpen,
@@ -16,6 +17,7 @@ export default function Resv({
   defaultCouponId,
 }) {
   const { user } = useUser();
+  const navigate = useNavigate();
 
   const MAX_TOTAL_HEADCOUNT = 18;
 
@@ -146,6 +148,21 @@ export default function Resv({
     } catch (e) {
       console.error(e);
       alert(e.message || "예약 처리 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleCompleteClose = () => {
+    const isGuest = !user || user.username === "Guest";
+
+    if (isGuest) {
+      // 비회원이면 그냥 팝업만 닫기
+      onClose?.();
+    } else {
+      // 로그인 유저면 마이페이지로 보내면서 "쿠폰으로 스크롤해!" 라는 state 전달
+      navigate("main/mypage", {
+        state: { scrollTo: "coupon" },
+        replace: false,
+      });
     }
   };
 
@@ -305,7 +322,7 @@ export default function Resv({
           phone={form.phone}
           headCount={form.headCount}
           request={form.request}
-          onClose={onClose}
+          onClose={handleCompleteClose}
           type={normalizedType}
         />
       )}

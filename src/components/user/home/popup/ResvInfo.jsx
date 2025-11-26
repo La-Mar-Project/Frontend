@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 function formatPhoneDisplay(phone) {
-  if (!phone) return "-";
+  if (!phone) return "";
 
   const digits = String(phone).replace(/\D/g, ""); // 숫자만 남기기
   if (!digits) return "-";

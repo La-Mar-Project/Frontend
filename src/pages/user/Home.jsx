@@ -86,7 +86,6 @@ export default function Home() {
 
     fetchCoupons();
   }, []);
-  //ㅇㅇ
 
   const earlyCouponId = useMemo(
     () =>
