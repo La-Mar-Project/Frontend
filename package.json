@@ -15,7 +15,7 @@
     "@fullcalendar/icalendar": "^6.1.19",
     "@fullcalendar/interaction": "^6.1.19",
     "@fullcalendar/react": "^6.1.19",
-    "ical.js": "^2.2.1",
+    "ical.js": "^1.5.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.5"
