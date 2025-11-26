@@ -28,7 +28,7 @@ export default function IntroLayout() {
           <div className="flex gap-4">
             <p>•</p>
             <NavLink to="ship" className={active}>
-              배 둘러보기
+              선박 둘러보기
             </NavLink>
           </div>
         </div>

@@ -7,7 +7,16 @@ export default function Maincompoenent({ num, title, text, link, img1, img2 }) {
       </div>
       <div className="text-textblack text-[20px] bg-sky-light-f rounded-[10px] px-[35px] py-4">
         <p>{text}</p>
-        <p className="underline">{link}</p>
+        {link && (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline text-blue-500"
+          >
+            JJUBUL 공식계정
+          </a>
+        )}
         <div className="flex gap-5">
           <img src={img1} />
           <img src={img2} />

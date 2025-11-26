@@ -122,7 +122,18 @@ export default function Home() {
             <div className={Textstyle} onClick={() => navigate("/main/notice")}>
               중요공지 확인하기
             </div>
-            <div className={Textstyle}>쭈불 카페가기</div>
+            <div
+              className={Textstyle}
+              onClick={() =>
+                window.open(
+                  "https://www.instagram.com/jjubull?igsh=MXFrNHR4d2FwMThwMQ==",
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }
+            >
+              쭈불 공식계정
+            </div>
 
             {/* <div className={Textstyle}>조과글 확인하기</div> */}
             <div className={Textstyle} onClick={() => navigate("/main/mypage")}>
@@ -266,7 +277,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-rows-[69px_1fr_auto] border-r-2 border-linecolor h-full overflow-hidden">
-          <div className="bg-sky-light-f h-[69px]">
+          <div className="bg-sky-light-f h-[69px] flex justify-center items-center">
             <img src={Advertisement} />
           </div>
           <div className="flex flex-col justify-between h-full pt-[120px]">
