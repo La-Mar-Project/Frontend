@@ -8,6 +8,16 @@
 const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER_URL || "";
 const IS_PROD = import.meta.env.PROD;
 
+export const setAccessToken = (token) => {
+  if (!token) {
+    localStorage.removeItem("accessToken");
+  } else {
+    localStorage.setItem("accessToken", token);
+  }
+  // 🔥 UserProvider가 이 이벤트를 구독해서 프로필을 다시 로드하게 됨
+  window.dispatchEvent(new Event("access-token-changed"));
+};
+
 /**
  * refresh 토큰으로 accessToken 재발급 시도
  * 성공하면 새 accessToken 문자열을 리턴, 실패하면 null 리턴
@@ -32,6 +42,7 @@ export const refreshAccessToken = async () => {
 
     if (!res.ok) {
       console.warn("token refresh 실패:", res.status);
+      setAccessToken(null);
       return null;
     }
 
@@ -60,11 +71,12 @@ export const refreshAccessToken = async () => {
       console.warn(
         "token refresh 응답 어디에도 accessToken 없음 (헤더/바디 모두 없음)"
       );
+      setAccessToken(null);
       return null;
     }
 
-    // 3) 로컬에 저장
-    localStorage.setItem("accessToken", newToken);
+    // ✅ 헬퍼로 저장 + 이벤트 발행
+    setAccessToken(newToken);
     console.log(
       "[Auth] 새 accessToken 저장 완료:",
       newToken.slice(0, 20),
@@ -73,9 +85,11 @@ export const refreshAccessToken = async () => {
     return newToken;
   } catch (e) {
     console.error("token refresh 중 에러:", e);
+    setAccessToken(null);
     return null;
   }
 };
+
 // 환경 변수에서 API 기본 URL 가져오기
 const API_BASE_URL = import.meta.env.PROD
   ? import.meta.env.VITE_API_BASE_URL || ""

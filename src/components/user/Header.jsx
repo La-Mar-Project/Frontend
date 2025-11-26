@@ -1,6 +1,7 @@
 import Logoblue from "../../assets/LogoBlue.svg";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
+import { setAccessToken } from "../../utils/api";
 
 const justifyMap = {
   left: "justify-start",
@@ -23,11 +24,9 @@ export default function Header({ showLogo = true, actionsAlign = "right" }) {
       let logoutUrl = "";
 
       if (IS_PROD && AUTH_SERVER) {
-        // prod: https://jjubul-auth.duckdns.org/auth/logout
         const base = AUTH_SERVER.replace(/\/+$/, "");
         logoutUrl = `${base}${LOGOUT_PATH}`;
       } else {
-        // dev: /auth/logout  -> Vite proxy 통해 auth 서버로
         logoutUrl = LOGOUT_PATH;
       }
 
@@ -42,15 +41,14 @@ export default function Header({ showLogo = true, actionsAlign = "right" }) {
       console.log("[Logout] status:", res.status);
 
       // 3) accessToken / user 상태 정리
-      localStorage.removeItem("accessToken");
+      setAccessToken(null);
       setUser(null);
 
       // 4) 메인(로그인) 화면으로 보내기
       navigate("/", { replace: true });
     } catch (e) {
       console.error("로그아웃 요청 중 에러:", e);
-      // 에러여도 일단 클라이언트 상태는 정리해 주는게 UX 상 좋아
-      localStorage.removeItem("accessToken");
+      setAccessToken(null);
       setUser(null);
       navigate("/", { replace: true });
     }

@@ -21,61 +21,71 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null); // 프로필 정보 전체
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-          // 토큰이 아예 없으면 그냥 Guest 상태 유지
-          setUser(null);
-          setError(null);
-          return;
-        }
-
-        // ✅ 여기서는 절대 refresh를 다시 부르면 안 되므로 apiGetNoRefresh 사용
-        const res = await apiGetNoRefresh("/users/me/profile");
-        console.log("[User] API 응답 객체:", res);
-
-        if (!res.ok) {
-          throw new Error(`status=${res.status}`);
-        }
-
-        const body = await res.json();
-        console.log("[User] API 응답 데이터:", body);
-
-        const data = body.data ?? body;
-
-        const userFromApi = {
-          username: data.username,
-          nickname: data.nickname,
-          grade: data.grade,
-          phone: data.phone,
-        };
-
-        setUser(userFromApi);
-        setError(null);
-      } catch (e) {
-        console.error("UserProvider fetchUser error:", e);
+  const loadUser = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.log("[UserProvider] accessToken 없음 → Guest");
         setUser(null);
         setError(null);
+        return;
       }
-    };
 
-    fetchUser();
-  }, []);
+      const res = await apiGetNoRefresh("/users/me/profile");
+      console.log("[UserProvider] /users/me/profile status:", res.status);
+
+      if (!res.ok) {
+        throw new Error(`status=${res.status}`);
+      }
+
+      const body = await res.json();
+      console.log("[UserProvider] 응답 데이터:", body);
+
+      const data = body.data ?? body;
+
+      const userFromApi = {
+        username: data.username,
+        nickname: data.nickname,
+        grade: data.grade,
+        phone: data.phone,
+      };
+
+      setUser(userFromApi);
+      setError(null);
+    } catch (e) {
+      console.error("[UserProvider] loadUser error:", e);
+      setUser(null);
+      setError(e);
+    }
+  };
+
+  useEffect(() => {
+    // 1) 앱 최초 마운트 시 한 번
+    loadUser();
+
+    // 2) 🔥 accessToken 이 바뀔 때마다 다시 로딩
+    const handler = () => {
+      console.log("[UserProvider] access-token-changed 이벤트 수신 → reload");
+      loadUser();
+    };
+    window.addEventListener("access-token-changed", handler);
+
+    return () => {
+      window.removeEventListener("access-token-changed", handler);
+    };
+  }, []); // loadUser는 내부에서 정의된 함수라 여기 deps 비워도 OK (lint 끄는 중)
 
   const safeUser = user ?? FALLBACK_USER;
 
   const value = {
     user: safeUser,
-    setUser, // Signup에서 setUser 호출하면 여기 user가 바로 바뀜
+    setUser,
     error,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
-// 3) 편하게 쓰기 위한 커스텀 훅
 export function useUser() {
   return useContext(UserContext);
 }
