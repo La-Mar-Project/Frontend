@@ -48,7 +48,9 @@ export const refreshAccessToken = async () => {
 
     const bodyToken =
       data?.data?.accessToken ??
+      data?.data?.jwt ?? // ✅ data.data.jwt
       data?.accessToken ??
+      data?.jwt ?? // ✅ data.jwt
       data?.access_token ??
       null;
 
