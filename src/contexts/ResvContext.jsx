@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
-import { apiGet } from "../utils/api";
+import { apiGetPublic } from "../utils/api";
 
 const ResvContext = createContext(null);
 
@@ -21,7 +21,7 @@ export function ResvProvider({ children }) {
       const endpoint = `/schedules/main?${params.toString()}`;
       console.log("[Resv] 요청 endpoint:", endpoint);
 
-      const res = await apiGet(endpoint);
+      const res = await apiGetPublic(endpoint);
 
       if (!res.ok) {
         let errorBody = null;
@@ -40,7 +40,6 @@ export function ResvProvider({ children }) {
       const body = await res.json();
       console.log("[Resv] 메인 스케줄 응답 raw:", body);
 
-      // 🔥 여기부터 백엔드 새 스펙에 맞게 수정
       let rawList = [];
 
       // 1) 지금 스펙: 응답이 바로 배열인 경우

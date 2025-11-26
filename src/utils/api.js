@@ -70,7 +70,8 @@ const API_BASE_URL = import.meta.env.PROD
  */
 export const apiRequest = async (endpoint, options = {}) => {
   // raw 옵션 분리
-  const { raw, _retry, ...fetchOptions } = options;
+  const { raw, _retry, withAuth = true, ...fetchOptions } = options;
+  const method = (fetchOptions.method || "GET").toUpperCase();
 
   // 엔드포인트가 전체 URL이 아닌 경우 기본 URL 추가
   const url = endpoint.startsWith("http")
@@ -81,7 +82,7 @@ export const apiRequest = async (endpoint, options = {}) => {
 
   // 디버깅: API 요청 정보 출력
   console.log("[API Request]", {
-    method: fetchOptions.method || "GET",
+    method,
     endpoint,
     url,
     API_BASE_URL,
@@ -90,13 +91,15 @@ export const apiRequest = async (endpoint, options = {}) => {
   });
 
   // 기본 헤더 설정
-  const defaultHeaders = {
-    "Content-Type": "application/json",
-  };
+  const defaultHeaders = {};
+
+  if (fetchOptions.body != null) {
+    defaultHeaders["Content-Type"] = "application/json";
+  }
 
   // 토큰이 있으면 Authorization 헤더 추가 (localStorage에서 가져오기)
   // api.js
-  const token = localStorage.getItem("accessToken");
+  const token = withAuth ? localStorage.getItem("accessToken") : null;
   if (token) {
     defaultHeaders["Authorization"] = `Bearer ${token}`;
   }
@@ -177,6 +180,14 @@ export const apiGet = async (endpoint, headers = {}) => {
   return apiRequest(endpoint, {
     method: "GET",
     headers,
+  });
+};
+
+export const apiGetPublic = async (endpoint, headers = {}) => {
+  return apiRequest(endpoint, {
+    method: "GET",
+    headers,
+    withAuth: false,
   });
 };
 
