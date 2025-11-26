@@ -1,16 +1,18 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useUser } from "../../../../contexts/UserContext";
+import { apiGet } from "../../../../utils/api";
 
 const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER_URL;
 
 export default function LoginCallback() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { setUser } = useUser();
 
   useEffect(() => {
     const run = async () => {
       try {
-        // 혹시 jwt 가 여기로 들어올 일 있으면 바로 회원가입으로 보내기 (방어코드)
         const params = new URLSearchParams(location.search);
         const jwt = params.get("jwt");
         if (jwt) {
@@ -59,6 +61,32 @@ export default function LoginCallback() {
         }
 
         localStorage.setItem("accessToken", accessToken);
+        try {
+          const profileRes = await apiGet("/users/me/profile");
+          console.log("[LoginCallback] profile status:", profileRes.status);
+
+          if (profileRes.ok) {
+            const profileBody = await profileRes.json();
+            const data = profileBody.data ?? profileBody;
+
+            const userFromApi = {
+              username: data.username,
+              nickname: data.nickname,
+              grade: data.grade,
+              phone: data.phone,
+            };
+
+            console.log("[LoginCallback] userFromApi:", userFromApi);
+            setUser(userFromApi);
+          } else {
+            console.warn(
+              "[LoginCallback] 프로필 조회 실패, 그대로 Guest 유지:",
+              profileRes.status
+            );
+          }
+        } catch (e) {
+          console.error("[LoginCallback] 프로필 조회 중 에러:", e);
+        }
 
         // UserProvider 가 /users/me/profile 을 다시 불러와서 user 채움
         navigate("/home", { replace: true });
@@ -69,7 +97,7 @@ export default function LoginCallback() {
     };
 
     run();
-  }, [location.search, navigate]);
+  }, [location.search, navigate, setUser]);
 
   return (
     <div className="w-full min-h-svh flex items-center justify-center">

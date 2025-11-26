@@ -16,7 +16,7 @@ export default function Main() {
   return (
     <div className="flex flex-col min-h-svh">
       <Header />
-      <section className="grid-rows-[auto_159px_1fr] text-title grid grid-cols-[1.5fr_repeat(5,1fr)] divide-x-2 divide-y-2 divide-linecolor flex-1">
+      <section className="grid-rows-[auto_159px_1fr] text-title grid grid-cols-[1.2fr_repeat(4,1fr)] divide-x-2 divide-y-2 divide-linecolor flex-1">
         <div className="bg-sky-mid-s">
           <img src={Advertisement} className="h-full" />
         </div>
@@ -29,9 +29,9 @@ export default function Main() {
           쭈불 둘러보기
         </NavLink>
 
-        <NavLink to="catch" className={navClass}>
+        {/* <NavLink to="catch" className={navClass}>
           조과글 확인하기
-        </NavLink>
+        </NavLink> */}
 
         <NavLink to="mypage" className={navClass}>
           마이페이지

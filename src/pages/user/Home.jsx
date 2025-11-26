@@ -123,19 +123,19 @@ export default function Home() {
               중요공지 확인하기
             </div>
             <div className={Textstyle}>쭈불 카페가기</div>
-            <div className="text-logocolor row-span-2 flex flex-col text-center p-3 border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto">
+
+            {/* <div className={Textstyle}>조과글 확인하기</div> */}
+            <div className={Textstyle} onClick={() => navigate("/main/mypage")}>
+              마이페이지
+            </div>
+            <div className="text-logocolor col-span-3 flex flex-col text-center p-3 border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto">
               <p className="text-[26px]">예약 정보 조회</p>
               <p className="text-[20px] font-[400] text-black-t px-10">
-                예약 정보 조회 및 취소는010-XXXX-XXXX에 <br />
-                문자로 요청해주세요
+                예약 정보 조회 및 취소는 문자로 요청해주세요
               </p>
               <p className="text-[18px] font-[400] text-black-t">
                 * 출조 중이나 업무 중에는 답변이 늦을 수 있음을 양해부탁드립니다
               </p>
-            </div>
-            <div className={Textstyle}>조과글 확인하기</div>
-            <div className={Textstyle} onClick={() => navigate("/main/mypage")}>
-              마이페이지
             </div>
           </section>
         </div>
