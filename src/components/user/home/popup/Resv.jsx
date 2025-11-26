@@ -220,9 +220,7 @@ export default function Resv({
                   </div>
                 </section>
               )}
-              <section className=" flex flex-col gap-[25px]">
-                <p className="pl-[75px] text-[22px] font-semibold">인증코드</p>
-              </section>
+
               <section className=" flex gap-[70px]">
                 <p className="pl-[75px] text-[22px] font-semibold">결제금액</p>
                 <div className="text-[24px] font-[700] flex justify-center items-center gap-[9px]">
