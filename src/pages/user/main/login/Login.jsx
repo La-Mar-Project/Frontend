@@ -36,7 +36,7 @@ export default function Login() {
             <div className="flex flex-col gap-[10px]">
               <LoginGoogle />
               <LoginKakao />
-              <LoginNaver />
+              {/* <LoginNaver /> */}
             </div>
             <div onClick={() => navigate("/home")}>
               <GuestButton onClick={handleGuestClick} />

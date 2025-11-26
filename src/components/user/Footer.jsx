@@ -10,7 +10,7 @@ export default function Footer() {
           <p>사업자번호 : 123-45-67890</p>
           <p>서강대학교</p>
           <p>전화문의: 010-1234-1234</p>
-          <p>COPYRIGHT © 쭈불 ALL RIGHTS RESERVED.</p>
+          <p>COPYRIGHT © 키위바나나 ALL RIGHTS RESERVED.</p>
         </div>
       </div>
     </div>
