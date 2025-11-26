@@ -10,7 +10,7 @@ export default function LoginCallback() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setUser } = useUser();
-
+  console.log("[LoginCallback] 렌더링됨", location.pathname + location.search);
   useEffect(() => {
     const run = async () => {
       try {
