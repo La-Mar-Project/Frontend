@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../../../contexts/UserContext";
-import { apiPost } from "../../../utils/api";
+import { apiPatch } from "../../../utils/api";
 
 function formatPhoneDisplay(phone) {
   if (!phone) return "-";
@@ -56,9 +56,7 @@ export default function MyInfo() {
     try {
       setSaving(true);
 
-      // 🔥 여기서 백엔드에서 정해준 닉네임 수정 API 엔드포인트/메서드에 맞춰 수정
-      // 예시: POST /users/me/nickname  또는 PATCH /users/me/profile
-      const res = await apiPost("/users/me/nickname", {
+      const res = await apiPatch("/users/me/profile-nickname", {
         nickname: trimmed,
       });
 
