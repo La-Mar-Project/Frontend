@@ -134,7 +134,7 @@ export default function ResvInfo({
         예약자명
         {isMember ? (
           // 🔹 회원: 고정 텍스트
-          <div className="text-[20px] font-[400] rounded-[10px] flex items-center w-[291px] h-[34px] px-[10px] py-[5px]">
+          <div className="text-[20px] font-[400] rounded-[10px] flex items-center w-[291px] h-[34px] px-[8px] py-[5px]">
             {username || "-"}
           </div>
         ) : (
