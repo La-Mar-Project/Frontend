@@ -6,7 +6,7 @@ import {
   useState,
   useCallback,
 } from "react";
-import { apiGetNoRefresh } from "../utils/api.js";
+import { apiGetNoRefresh, refreshAccessToken } from "../utils/api.js";
 
 const FALLBACK_USER = {
   username: "Guest",
@@ -30,17 +30,32 @@ export function UserProvider({ children }) {
 
   const fetchUser = useCallback(async () => {
     try {
-      const token = localStorage.getItem("accessToken");
+      // 1) 먼저 localStorage에서 accessToken 확인
+      let token = localStorage.getItem("accessToken");
+
+      // 2) 없으면 한 번만 refresh 시도 (쿠키에 refresh_token 있으면 새 토큰 내려옴)
       if (!token) {
-        setUser(null);
-        setError(null);
-        return;
+        console.log("[User] localStorage에 accessToken 없음 → refresh 시도");
+        token = await refreshAccessToken();
+
+        // refresh도 실패하면 진짜 비로그인 상태로 처리
+        if (!token) {
+          console.log("[User] refreshAccessToken 실패 → Guest 상태 유지");
+          setUser(null);
+          setError(null);
+          return;
+        }
       }
 
+      // 3) 여기까지 왔으면 localStorage 에도 토큰 저장돼 있음
       const res = await apiGetNoRefresh("/users/me/profile");
       console.log("[User] /users/me/profile status:", res.status);
 
       if (!res.ok) {
+        // (선택) 401 이면 토큰도 같이 정리해도 됨
+        if (res.status === 401) {
+          localStorage.removeItem("accessToken");
+        }
         throw new Error(`status=${res.status}`);
       }
 
@@ -64,7 +79,6 @@ export function UserProvider({ children }) {
       setError(null);
     }
   }, []);
-
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
