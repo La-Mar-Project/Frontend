@@ -20,7 +20,7 @@ function formatPhoneDisplay(phone) {
 }
 
 export default function MyInfo() {
-  const { user, setUser } = useUser(); // UserContext에서 가져오기
+  const { user, setUser, reloadUser } = useUser(); // UserContext에서 가져오기
   const [nickname, setNickname] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -75,6 +75,8 @@ export default function MyInfo() {
             }
           : prev
       );
+
+      await reloadUser?.();
 
       alert("닉네임이 수정되었습니다.");
     } catch (e) {

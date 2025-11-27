@@ -15,7 +15,7 @@ export default function DetailPopup({ schedule, onReserveClick }) {
       "publicId =",
       schedule?.publicId
     );
-    if (!schedule?.publicId) return; // 필드명이 다르면 여기를 맞춰줘 (예: schedule.schedulePublicId)
+    if (!schedule?.publicId) return;
 
     const fetchDetail = async () => {
       try {
@@ -83,8 +83,8 @@ export default function DetailPopup({ schedule, onReserveClick }) {
   return (
     <div>
       <div className="flex items-center justify-between px-[27px] pt-[25px] pb-[15px] gap-[25px]">
-        <p className="text-black-t text-[30px] font-[600]">{label}</p>
-        <p className="text-[14px]">
+        <p className="text-black-t text-[25px] font-[600]">{label}</p>
+        <p className="text-[12px]">
           {schedule.tide}물 {schedule.fishType} {formatPriceMan(schedule.price)}
           <br />
           {schedule.description ?? "쭈꾸미 위주의 낚시"}
