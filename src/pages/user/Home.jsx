@@ -316,7 +316,7 @@ export default function Home() {
           <div className="bg-sky-light-f h-[69px] flex justify-center items-center">
             <img src={Advertisement} />
           </div>
-          <div className="flex flex-col justify-between h-full pt-[120px]">
+          <div className="flex flex-col justify-between h-full pt-[240px]">
             {detailOpen && selectedSchedule ? (
               <DetailPopup
                 schedule={selectedSchedule}
