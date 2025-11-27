@@ -9,12 +9,15 @@ import ResvPopup from "../../../../components/user/mypage/ResvPopup";
 import CancelPopup from "../../../../components/user/mypage/CancelPopup";
 
 import { apiGet } from "../../../../utils/api.js";
+import { useUser } from "../../../../contexts/UserContext.js";
 
 const TABS = { ALL: "all", RESERVE: "reserve", CANCEL: "cancel" };
 const RESERVE_SET = new Set(["RESERVE_COMPLETED", "DEPOSIT_COMPLETED"]);
 const CANCEL_SET = new Set(["CANCEL_REQUESTED", "CANCEL_COMPLETED"]);
 
 export default function Info() {
+  const { user } = useUser();
+  const coupons = Array.isArray(user.coupons) ? user.coupons : [];
   const [tab, setTab] = useState(TABS.ALL);
 
   // 서버에서 받아온 예약/취소 내역 리스트
@@ -22,45 +25,10 @@ export default function Info() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [coupons, setCoupons] = useState([]);
-  const [couponError, setCouponError] = useState(null);
-
   // 어떤 항목을 선택했는지
   const [selectedItem, setSelectedItem] = useState(null);
   // 어떤 팝업을 열지: "reserve" | "cancel" | null
   const [popupType, setPopupType] = useState(null);
-
-  // 0) 내 쿠폰 목록 불러오기
-  useEffect(() => {
-    const fetchCoupons = async () => {
-      try {
-        setCouponError(null);
-
-        // 백엔드에서 정해준 경로 사용 (예: /users/me/coupons)
-        const res = await apiGet("/users/me/coupons");
-
-        if (!res.ok) {
-          throw new Error(`쿠폰 목록 불러오기 실패 (${res.status})`);
-        }
-
-        const body = await res.json();
-        console.log("[마이페이지 쿠폰 API 응답]", body);
-
-        // 응답 형태에 따라 data에 있으면 data에서 꺼내고, 아니면 본문 전체 사용
-        const list = Array.isArray(body?.data) ? body.data : body;
-
-        setCoupons(list);
-      } catch (e) {
-        console.error(e);
-        setCoupons([]);
-        setCouponError(
-          e.message ?? "쿠폰 정보를 불러오는 중 오류가 발생했습니다."
-        );
-      }
-    };
-
-    fetchCoupons();
-  }, []);
 
   // 1) 처음에 한 번 전체 목록만 가져오기
   useEffect(() => {
@@ -180,21 +148,14 @@ export default function Info() {
         <p className="pl-[75px]">내 쿠폰</p>
         <div className="pl-[115px]">
           <div className="rounded-[10px] px-[30px] py-[25px] grid grid-cols-6 justify-center items-center gap-[12px] bg-sky-mid-s">
-            {couponError && (
-              <p className="text-[18px] text-red-500 col-span-6">
-                {couponError}
-              </p>
-            )}
-
-            {!couponError && coupons.length === 0 && (
+            {coupons.length === 0 && (
               <p className="text-[18px] text-gray-500 col-span-6">
                 발급된 쿠폰이 없습니다.
               </p>
             )}
 
-            {!couponError &&
-              coupons.length > 0 &&
-              coupons.map((c) => {
+            {coupons.length > 0 &&
+              coupons.map((c, idx) => {
                 const title =
                   c.type === "WEEKEND"
                     ? "시즌 3 주말 선예약 쿠폰"
@@ -204,14 +165,7 @@ export default function Info() {
                   ? c.expiresAt.slice(2, 10).replace(/-/g, ".")
                   : null;
 
-                return (
-                  <MyCoupon
-                    key={c.couponId}
-                    title={title}
-                    from={from}
-                    to={to}
-                  />
-                );
+                return <MyCoupon key={idx} title={title} from={null} to={to} />;
               })}
           </div>
         </div>

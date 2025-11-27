@@ -13,6 +13,7 @@ const FALLBACK_USER = {
   nickname: "Guest",
   grade: "",
   phone: "",
+  coupons: [],
 };
 
 // 1) Context 객체
@@ -71,6 +72,7 @@ export function UserProvider({ children }) {
         nickname: data.nickname,
         grade: data.grade,
         phone: data.phone,
+        coupons: Array.isArray(data.coupons) ? data.coupons : [],
       };
 
       setUser(userFromApi);
