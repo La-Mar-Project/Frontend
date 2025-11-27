@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { apiPatch } from "../../../utils/api";
 
 const API_BASE = import.meta.env.VITE_API_SERVER_URL || "/api";
 
@@ -62,19 +63,9 @@ export default function ResvPopup({
     if (!ok) return;
 
     try {
-      const res = await fetch(
-        `${API_BASE}/reservations/${reservationId}/cancel-request`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            // 필요하면 Authorization 추가
-            // Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            process: "CANCEL_REQUESTED",
-          }),
-        }
+      const res = await apiPatch(
+        `/reservations/${reservationId}/cancel-request`,
+        { process: "CANCEL_REQUESTED" }
       );
 
       if (!res.ok) {

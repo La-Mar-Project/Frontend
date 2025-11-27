@@ -71,19 +71,19 @@ export default function Header({ showLogo = true, actionsAlign = "right" }) {
         ].join(" ")}
       >
         <button
-          className="p-[10px] cursor-pointer shrink-0"
+          className="p-[10px] cursor-pointer shrink-0 font-[600] text-logo-fill"
           onClick={() => navigate("/main/mypage")}
         >
           마이페이지
         </button>
         <button
-          className="p-[10px] cursor-pointer shrink-0"
+          className="p-[10px] cursor-pointer shrink-0 font-[600] text-logo-fill"
           onClick={handleLogout}
         >
           로그아웃
         </button>
         <button
-          className="p-[10px] cursor-pointer shrink-0"
+          className="p-[10px] cursor-pointer shrink-0 font-[600] text-logo-fill"
           onClick={() => navigate("/")}
         >
           회원가입
