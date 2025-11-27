@@ -99,12 +99,17 @@ export default function Home() {
       const body = await res.json();
       const data = body.data ?? body;
 
-      const userData = data.user ?? {};
-      setPopupUser(userData); // 🔹 Resv로 내려줄 user 값
+      const userDataFromApi = data.user ?? {};
+      const profileCoupons = Array.isArray(user?.coupons) ? user.coupons : [];
+      const mergedUserForPopup = {
+        ...userDataFromApi,
+        coupons: profileCoupons,
+      };
 
+      setPopupUser(mergedUserForPopup);
       // 🔹 EARLY 인 경우에만 쿠폰 체크
       if (type === "EARLY") {
-        const coupons = Array.isArray(userData.coupons) ? userData.coupons : [];
+        const coupons = profileCoupons;
 
         // 쿠폰 없으면 팝업 안 열고 막기
         if (coupons.length === 0) {
