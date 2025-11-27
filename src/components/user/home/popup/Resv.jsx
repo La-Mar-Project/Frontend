@@ -222,9 +222,9 @@ export default function Resv({
               {isEarly && (
                 <section className="flex gap-[25px]">
                   <p className="pl-[75px] text-[22px] font-semibold">쿠폰</p>
-                  <div className="flex items-center px-[60px]">
+                  <div className="flex items-center px-[80px]">
                     {(popupUser?.coupons?.length ?? 0) === 0 ? (
-                      <p className="text-[16px] text-gray-500">
+                      <p className="text-[18px] text-gray-500">
                         사용 가능한 선예약 쿠폰이 없습니다.
                       </p>
                     ) : (
