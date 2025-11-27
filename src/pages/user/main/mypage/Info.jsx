@@ -9,7 +9,7 @@ import ResvPopup from "../../../../components/user/mypage/ResvPopup";
 import CancelPopup from "../../../../components/user/mypage/CancelPopup";
 
 import { apiGet } from "../../../../utils/api.js";
-import { useUser } from "../../../../contexts/UserContext.js";
+import { useUser } from "../../../../contexts/UserContext.jsx";
 
 const TABS = { ALL: "all", RESERVE: "reserve", CANCEL: "cancel" };
 const RESERVE_SET = new Set(["RESERVE_COMPLETED", "DEPOSIT_COMPLETED"]);
