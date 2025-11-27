@@ -1,16 +1,20 @@
 export default function UseCoupon({ coupon, selected, onSelect }) {
   const dotClass = selected ? "bg-logo-fill" : "bg-[#D9D9D9]";
 
-  // 백엔드에서 오는 필드 이름에 맞춰서 수정해줘
-  const from = coupon?.validFrom ?? "25.09.01";
-  const to = coupon?.validTo ?? "25.12.10";
+  const kind =
+    coupon?.type === "WEEKEND" ? "주말 선예약 쿠폰" : "평일 선예약 쿠폰";
+
+  // "2025-12-10T00:00:00" → "25.12.10"
+  const expires = coupon?.expiresAt
+    ? coupon.expiresAt.slice(2, 10).replace(/-/g, ".")
+    : "";
 
   return (
     <button
       type="button"
       onClick={() => {
-        console.log("쿠폰 클릭:", coupon?.id);
-        onSelect?.(coupon?.id);
+        console.log("쿠폰 클릭:", coupon?.couponId);
+        onSelect?.(coupon?.couponId);
       }}
       className="w-[94px] flex flex-col gap-1 bg-white rounded-[10px] pl-[10px] pt-[5px] pb-[10px] shadow-md"
     >
@@ -19,10 +23,10 @@ export default function UseCoupon({ coupon, selected, onSelect }) {
       </div>
       <div className="text-[18px]">
         <p className="font-[600] leading-5 text-start">시즌 3</p>
-        <p className="font-[500] text-[16px] text-start">선예약 쿠폰</p>
+        <p className="font-[500] text-[16px] text-start">{kind}</p>
       </div>
       <div className="text-[14px] font-[300] px-1">
-        {from} <br />~ {to}
+        {expires && <>~ {expires}</>}
       </div>
     </button>
   );

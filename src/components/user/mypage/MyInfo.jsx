@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../../../contexts/UserContext";
+import { apiPost } from "../../../utils/api";
 
 function formatPhoneDisplay(phone) {
   if (!phone) return "-";
@@ -19,8 +20,9 @@ function formatPhoneDisplay(phone) {
 }
 
 export default function MyInfo() {
-  const { user } = useUser(); // UserContext에서 가져오기
+  const { user, setUser } = useUser(); // UserContext에서 가져오기
   const [nickname, setNickname] = useState("");
+  const [saving, setSaving] = useState(false);
 
   // user가 바뀔 때 nickname 초기값 세팅
   useEffect(() => {
@@ -33,10 +35,57 @@ export default function MyInfo() {
     setNickname(e.target.value);
   };
 
-  // const handleNicknameUpdate = () => {
-  //   // TODO: 나중에 닉네임 수정 API + UserContext 업데이트 연결
-  //   console.log("닉네임 수정하기 클릭:", nickname);
-  // };
+  const handleNicknameUpdate = async () => {
+    const trimmed = nickname.trim();
+
+    if (!trimmed) {
+      alert("닉네임을 입력해 주세요.");
+      return;
+    }
+
+    if (!user) {
+      alert("로그인 후 이용해 주세요.");
+      return;
+    }
+
+    if (trimmed === (user.nickname ?? "")) {
+      alert("변경된 내용이 없습니다.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      // 🔥 여기서 백엔드에서 정해준 닉네임 수정 API 엔드포인트/메서드에 맞춰 수정
+      // 예시: POST /users/me/nickname  또는 PATCH /users/me/profile
+      const res = await apiPost("/users/me/nickname", {
+        nickname: trimmed,
+      });
+
+      if (!res.ok) {
+        throw new Error(`닉네임 수정 실패 (${res.status})`);
+      }
+
+      // const body = await res.json(); // 필요하면 응답도 사용
+
+      // ✅ 전역 user 상태도 같이 업데이트
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              nickname: trimmed,
+            }
+          : prev
+      );
+
+      alert("닉네임이 수정되었습니다.");
+    } catch (e) {
+      console.error(e);
+      alert(e.message ?? "닉네임 수정 중 오류가 발생했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  };
   const phoneDisplay = user?.phone ? formatPhoneDisplay(user.phone) : "-";
 
   return (
@@ -56,8 +105,12 @@ export default function MyInfo() {
             value={nickname}
             onChange={handleNicknameChange}
           />
-          <button className="cursor-pointer shrink-0 bg-sky-mid-s rounded-[10px] px-2 flex justify-center items-center text-[14px] font-[400x]">
-            수정하기
+          <button
+            className="cursor-pointer shrink-0 bg-sky-mid-s rounded-[10px] px-2 flex justify-center items-center text-[14px] font-[400x] disabled:opacity-60"
+            onClick={handleNicknameUpdate}
+            disabled={saving}
+          >
+            {saving ? "저장 중..." : "수정하기"}
           </button>
         </div>
       </section>

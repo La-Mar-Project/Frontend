@@ -106,18 +106,16 @@ export default function Home() {
       if (type === "EARLY") {
         const coupons = Array.isArray(userData.coupons) ? userData.coupons : [];
 
-        const earlyCoupon = coupons.find(
-          (c) => (c.type ?? c.couponType ?? "").toUpperCase() === "EARLY"
-        );
-
         // 쿠폰 없으면 팝업 안 열고 막기
-        if (!earlyCoupon) {
+        if (coupons.length === 0) {
           alert("선예약 쿠폰이 없어 선예약을 진행할 수 없습니다.");
           setDefaultCouponId(null);
-          return;
+          return; // ❗ 팝업 열지 말고 종료
         }
 
-        setDefaultCouponId(earlyCoupon.couponId ?? null);
+        const defaultCoupon = coupons[0];
+
+        setDefaultCouponId(defaultCoupon.couponId ?? null);
       } else {
         // 일반 예약일 땐 쿠폰 없음
         setDefaultCouponId(null);

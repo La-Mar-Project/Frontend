@@ -26,6 +26,7 @@ export default function Resv({
     typeof schedule?.type === "string"
       ? schedule.type.trim().toUpperCase()
       : "NORMAL";
+
   const isEarly = normalizedType === "EARLY";
 
   // earlyData가 있으면 그것도 EARLY로 취급
@@ -71,13 +72,6 @@ export default function Resv({
       };
     });
   }, [isOpen, popupUser, user, maxSelectableHeadCount, defaultCouponId]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e) => e.key === "Escape" && onClose?.();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, onClose]);
 
   const formattedDepartLabel = (() => {
     if (!date) return "-";
@@ -226,13 +220,19 @@ export default function Resv({
                 <section className="flex gap-[25px]">
                   <p className="pl-[75px] text-[22px] font-semibold">쿠폰</p>
                   <div className="flex items-center px-[60px]">
-                    <ResvCoupon
-                      coupons={popupUser?.coupons ?? []}
-                      selectedCouponId={form.couponId}
-                      onSelectCoupon={(id) =>
-                        setForm((prev) => ({ ...prev, couponId: id }))
-                      }
-                    />
+                    {(popupUser?.coupons?.length ?? 0) === 0 ? (
+                      <p className="text-[16px] text-gray-500">
+                        사용 가능한 선예약 쿠폰이 없습니다.
+                      </p>
+                    ) : (
+                      <ResvCoupon
+                        coupons={popupUser?.coupons ?? []}
+                        selectedCouponId={form.couponId}
+                        onSelectCoupon={(id) =>
+                          setForm((prev) => ({ ...prev, couponId: id }))
+                        }
+                      />
+                    )}
                   </div>
                 </section>
               )}
