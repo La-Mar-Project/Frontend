@@ -18,6 +18,8 @@ export default function Resv({
   popupUser,
 }) {
   const { user } = useUser();
+  const isMember = !!localStorage.getItem("accessToken");
+
   const navigate = useNavigate();
 
   const MAX_TOTAL_HEADCOUNT = 18;
@@ -213,6 +215,7 @@ export default function Resv({
                     }
                     minPeople={1}
                     maxPeople={maxSelectableHeadCount}
+                    isMember={isMember}
                   />
                 </div>
               </section>
