@@ -154,17 +154,32 @@ export default function ResvInfo({
       <section className="flex justify-between w-[456px]">
         닉네임
         <div className="flex flex-col gap-1">
-          <div className="border border-[#828BC0] rounded-[10px] flex items-center w-[291px] h-[34px] px-[10px]">
-            <input
-              className="focus:outline-none w-full text-[16px]"
-              placeholder="닉네임을 입력해주세요."
-              value={nickname}
-              onChange={(e) => onChangeField?.("nickname", e.target.value)}
-            />
-          </div>
-          <p className="text-[14px]">
-            * 달력에서 닉네임으로 예약 진행단계를 확인할 수 있습니다.
-          </p>
+          {isMember ? (
+            // 🔹 회원: 고정 텍스트
+            <>
+              <div className="text-[20px] font-[400] rounded-[10px] flex items-center w-[291px] h-[34px] px-[10px] py-[5px]">
+                {nickname || "-"}
+              </div>
+              <p className="text-[14px]">
+                * 달력에서 닉네임으로 예약 진행단계를 확인할 수 있습니다.
+              </p>
+            </>
+          ) : (
+            // 🔹 비회원: 입력 가능
+            <>
+              <div className="border border-[#828BC0] rounded-[10px] flex items-center w-[291px] h-[34px] px-[10px]">
+                <input
+                  className="focus:outline-none w-full text-[16px]"
+                  placeholder="닉네임을 입력해주세요."
+                  value={nickname}
+                  onChange={(e) => onChangeField?.("nickname", e.target.value)}
+                />
+              </div>
+              <p className="text-[14px]">
+                * 달력에서 닉네임으로 예약 진행단계를 확인할 수 있습니다.
+              </p>
+            </>
+          )}
         </div>
       </section>
 
