@@ -117,10 +117,10 @@ export default function Info() {
     console.log("[상세보기 클릭] process =", listProcess);
   };
 
-  const handleCancelRequested = (reservationPublicId) => {
+  const handleCancelRequested = (reservationId) => {
     setItems((prev) =>
       prev.map((it) =>
-        it.reservationPublicId === reservationPublicId
+        it.reservationId === reservationId
           ? { ...it, process: "CANCEL_REQUESTED" }
           : it
       )
