@@ -228,13 +228,7 @@ export default function Resv({
                         사용 가능한 선예약 쿠폰이 없습니다.
                       </p>
                     ) : (
-                      <ResvCoupon
-                        coupons={popupUser?.coupons ?? []}
-                        selectedCouponId={form.couponId}
-                        onSelectCoupon={(id) =>
-                          setForm((prev) => ({ ...prev, couponId: id }))
-                        }
-                      />
+                      <ResvCoupon coupons={popupUser?.coupons ?? []} />
                     )}
                   </div>
                 </section>
