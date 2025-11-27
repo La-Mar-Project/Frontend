@@ -44,7 +44,7 @@ export default function ResvPopup({
     shipFishType,
     totalPrice,
     headCount,
-    reservationPublicId,
+    reservationId,
   } = item;
 
   const statusText = PROCESS_LABEL[localProcess] ?? localProcess ?? "-";
@@ -53,7 +53,7 @@ export default function ResvPopup({
   };
 
   const handleCancelRequest = async () => {
-    if (!reservationPublicId) {
+    if (!reservationId) {
       alert("예약 ID가 없어 취소 신청을 할 수 없습니다.");
       return;
     }
@@ -63,7 +63,7 @@ export default function ResvPopup({
 
     try {
       const res = await fetch(
-        `${API_BASE}/reservations/${reservationPublicId}/cancel-request`,
+        `${API_BASE}/reservations/${reservationId}/cancel-request`,
         {
           method: "PATCH",
           headers: {
@@ -82,7 +82,7 @@ export default function ResvPopup({
       }
 
       setLocalProcess("CANCEL_REQUESTED");
-      onCancelRequested?.(reservationPublicId);
+      onCancelRequested?.(reservationId);
 
       alert("취소 신청이 완료되었습니다.");
       onClose?.(); // 팝업 닫기

@@ -64,6 +64,8 @@ export function UserProvider({ children }) {
 
       const data = body.data ?? body;
 
+      console.log("[User] profile.nickname:", data.nickname);
+
       const userFromApi = {
         username: data.username,
         nickname: data.nickname,

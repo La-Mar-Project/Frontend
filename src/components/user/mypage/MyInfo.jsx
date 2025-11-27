@@ -26,8 +26,11 @@ export default function MyInfo() {
 
   // user가 바뀔 때 nickname 초기값 세팅
   useEffect(() => {
-    if (user?.nickname) {
-      setNickname(user.nickname);
+    if (user) {
+      // nickname이 null이든 undefined든 ""로 맞춰서 세팅
+      setNickname(user.nickname ?? "");
+    } else {
+      setNickname("");
     }
   }, [user]);
 
