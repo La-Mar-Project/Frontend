@@ -15,15 +15,12 @@ export default function Resv({
   onClose,
   onConfirm,
   defaultCouponId,
+  popupUser,
 }) {
   const { user } = useUser();
   const navigate = useNavigate();
 
   const MAX_TOTAL_HEADCOUNT = 18;
-
-  const remaining = schedule?.remainingHeadCount ?? MAX_TOTAL_HEADCOUNT;
-
-  const maxSelectableHeadCount = Math.min(MAX_TOTAL_HEADCOUNT, remaining);
 
   const normalizedType =
     typeof schedule?.type === "string"
@@ -31,12 +28,32 @@ export default function Resv({
       : "NORMAL";
   const isEarly = normalizedType === "EARLY";
 
+  // earlyData가 있으면 그것도 EARLY로 취급
+
+  // 잔여 인원: earlyData > schedule > 기본값
+  const remaining = schedule?.remainingHeadCount ?? MAX_TOTAL_HEADCOUNT;
+
+  const maxSelectableHeadCount = Math.min(MAX_TOTAL_HEADCOUNT, remaining);
+
+  const [form, setForm] = useState({
+    username: "",
+    nickname: "",
+    phone: "",
+    headCount: 1,
+    request: "",
+    couponId: null,
+  });
+
+  const [agreed, setAgreed] = useState(false);
+  const [phase, setPhase] = useState("form");
+
   useEffect(() => {
     if (!isOpen) return;
 
-    // 팝업 열릴 때마다 동의/단계 초기화
     setAgreed(false);
     setPhase("form");
+
+    const baseUser = popupUser ?? user;
 
     setForm((prev) => {
       const nextHeadCount = Math.min(
@@ -46,14 +63,21 @@ export default function Resv({
 
       return {
         ...prev,
-        username: user?.username ?? prev.username ?? "",
-        nickname: user?.nickname ?? prev.nickname ?? "",
-        phone: user?.phone ?? prev.phone ?? "",
+        username: baseUser?.username ?? prev.username ?? "",
+        nickname: baseUser?.nickname ?? prev.nickname ?? "",
+        phone: baseUser?.phone ?? prev.phone ?? "",
         headCount: nextHeadCount,
         couponId: defaultCouponId ?? prev.couponId ?? null,
       };
     });
-  }, [isOpen, user, maxSelectableHeadCount, defaultCouponId]);
+  }, [isOpen, popupUser, user, maxSelectableHeadCount, defaultCouponId]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e) => e.key === "Escape" && onClose?.();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
 
   const formattedDepartLabel = (() => {
     if (!date) return "-";
@@ -74,18 +98,6 @@ export default function Resv({
 
   const priceText =
     schedule?.price != null ? schedule.price.toLocaleString() : "0";
-
-  const [form, setForm] = useState({
-    username: "",
-    nickname: "",
-    phone: "",
-    headCount: 1,
-    request: "",
-    couponId: null,
-  });
-
-  const [agreed, setAgreed] = useState(false);
-  const [phase, setPhase] = useState("form");
 
   useEffect(() => {
     if (isOpen) {
@@ -214,9 +226,13 @@ export default function Resv({
                 <section className="flex gap-[25px]">
                   <p className="pl-[75px] text-[22px] font-semibold">쿠폰</p>
                   <div className="flex items-center px-[60px]">
-                    <div className="flex w-full">
-                      시즌3 선예약 쿠폰 1매 사용
-                    </div>
+                    <ResvCoupon
+                      coupons={popupUser?.coupons ?? []}
+                      selectedCouponId={form.couponId}
+                      onSelectCoupon={(id) =>
+                        setForm((prev) => ({ ...prev, couponId: id }))
+                      }
+                    />
                   </div>
                 </section>
               )}

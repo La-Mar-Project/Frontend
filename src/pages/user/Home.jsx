@@ -26,6 +26,9 @@ export default function Home() {
   const [detailOpen, setDetailOpen] = useState(false); // 오른쪽 DetailPopup on/off
   const [resvPopupOpen, setResvPopupOpen] = useState(false); // 예약창(ResvPopup) on/off
 
+  const [popupUser, setPopupUser] = useState(null); // 팝업에서 받은 user 정보
+  const [defaultCouponId, setDefaultCouponId] = useState(null);
+
   const { loadSchedules } = useResv();
 
   useEffect(() => {
@@ -67,43 +70,66 @@ export default function Home() {
   const Textstyle =
     "hover:bg-sky-light-f hover:text-logocolor cursor-pointer text-[30px] text-logocolor p-3 border border-logocolor border-2 bg-white flex justify-center items-center rounded-[20px] w-auto h-auto";
 
-  const [coupons, setCoupons] = useState([]);
+  // const [earlyData, setEarlyData] = useState(null); // 선예약 팝업 조회 응답
+  // const [earlyLoading, setEarlyLoading] = useState(false); // 필요하면 로딩 표시용
 
-  // 로그인 되어 있으면 쿠폰 목록 1번 불러오기
-  useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      setCoupons([]);
-      return;
-    }
+  const handleReserveClick = async () => {
+    if (!selectedSchedule) return;
 
-    const fetchCoupons = async () => {
-      try {
-        const res = await apiGet("/users/me/coupons"); // 백엔드 쿠폰 조회 API 경로
-        if (!res.ok) throw new Error(`status=${res.status}`);
-        const body = await res.json();
+    const schedulePublicId = selectedSchedule.publicId;
+    const type =
+      typeof selectedSchedule.type === "string"
+        ? selectedSchedule.type.trim().toUpperCase()
+        : "NORMAL";
 
-        // 응답 형태에 따라 data에서 꺼내거나 바로 사용
-        const list = Array.isArray(body.data) ? body.data : body;
-        setCoupons(list);
-      } catch (e) {
-        console.error("[Home] 쿠폰 조회 실패:", e);
-        setCoupons([]);
+    // 🔹 어떤 팝업 조회 API를 부를지 결정
+    const path =
+      type === "EARLY"
+        ? `/schedules/${schedulePublicId}/reservation/early`
+        : `/schedules/${schedulePublicId}/reservation/normal`;
+
+    try {
+      const res = await apiGet(path);
+      if (!res.ok) {
+        throw new Error(
+          `예약 팝업 조회 실패 (${res.status})\n잠시 후 다시 시도해주세요.`
+        );
       }
-    };
 
-    fetchCoupons();
-  }, []);
+      const body = await res.json();
+      const data = body.data ?? body;
 
-  const earlyCouponId = useMemo(
-    () =>
-      coupons.find((c) => {
-        const t = (c.type ?? c.couponType ?? "").toUpperCase();
-        return t === "EARLY";
-      })?.id ?? null,
-    [coupons]
-  );
+      const userData = data.user ?? {};
+      setPopupUser(userData); // 🔹 Resv로 내려줄 user 값
 
+      // 🔹 EARLY 인 경우에만 쿠폰 체크
+      if (type === "EARLY") {
+        const coupons = Array.isArray(userData.coupons) ? userData.coupons : [];
+
+        const earlyCoupon = coupons.find(
+          (c) => (c.type ?? c.couponType ?? "").toUpperCase() === "EARLY"
+        );
+
+        // 쿠폰 없으면 팝업 안 열고 막기
+        if (!earlyCoupon) {
+          alert("선예약 쿠폰이 없어 선예약을 진행할 수 없습니다.");
+          setDefaultCouponId(null);
+          return;
+        }
+
+        setDefaultCouponId(earlyCoupon.couponId ?? null);
+      } else {
+        // 일반 예약일 땐 쿠폰 없음
+        setDefaultCouponId(null);
+      }
+
+      // 여기까지 왔으면 팝업 열기
+      setResvPopupOpen(true);
+    } catch (e) {
+      console.error("[Home] 예약 팝업 조회 중 오류:", e);
+      alert(e.message || "예약 정보를 불러오는 중 오류가 발생했습니다.");
+    }
+  };
   return (
     <div className="min-h-svh">
       <Header showLogo={false} actionsAlign="right" />
@@ -291,7 +317,7 @@ export default function Home() {
             {detailOpen && selectedSchedule ? (
               <DetailPopup
                 schedule={selectedSchedule}
-                onReserveClick={() => setResvPopupOpen(true)} // 여기서 예약창 띄우기
+                onReserveClick={handleReserveClick}
               />
             ) : (
               <div className="flex flex-col gap-[57px]">
@@ -380,12 +406,15 @@ export default function Home() {
             isOpen={resvPopupOpen}
             date={selectedSchedule.date} // YYYY-MM-DD
             schedule={selectedSchedule}
-            defaultCouponId={earlyCouponId}
+            defaultCouponId={defaultCouponId} // ✅ 위에서 만든 state
+            popupUser={popupUser}
             onClose={() => {
               // 🔥 예약 팝업 닫으면 기본 상태로 돌아가게
               setResvPopupOpen(false);
               setDetailOpen(false);
               setSelectedSchedule(null);
+              setPopupUser(null);
+              setDefaultCouponId(null);
             }}
             onConfirm={(d, payload, schedule) => {
               // TODO: 실제 예약 확정 로직
