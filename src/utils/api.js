@@ -214,19 +214,6 @@ export const apiRequest = async (endpoint, options = {}) => {
   }
 };
 
-export function apiPatch(path, body) {
-  const token = localStorage.getItem("accessToken");
-
-  return fetch(`${API_BASE}${path}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(body),
-  });
-}
-
 /**
  * GET 요청 (기본: /api prefix 붙음)
  */
@@ -288,7 +275,7 @@ export const apiPut = async (endpoint, data, headers = {}) => {
 };
 
 /**
- * PATCH 요청
+ * PATCH
  */
 export const apiPatch = async (endpoint, data, headers = {}) => {
   return apiRequest(endpoint, {
